@@ -56,7 +56,6 @@ undefined는 단순히 값이 존재하지 않는것, null은 의도적으로 �
 *** Function과 Method의 차이? 다르지 않다.
 
 
-
 ### 이클립스 프로젝트 안에 자바스크립트 파일을 만들고 실행
 
 : Project 우클릭 - New - JavaScript Source File - File이름.js
@@ -159,6 +158,7 @@ console.log('JAVA_HOME 환경 변수의 값 : '+process.env[JAVA_HOME]);
 
 주의할 점은 exports 외에 module.exports를 사용할 수도 있는데. 이 둘의 차이는 expots는 속성을 추가할 수 있어 여러 개의 변수나 함수를 각각의 속성으로 추가할 수 있다. 이에 반해 module.exports에는 하나의 변수나 함수 또는 객체를 직접 할당.
 
+
 ### 더하기 함수를 모듈로 분리
 
 ```shell
@@ -181,3 +181,47 @@ var calc = require('/calc');
 console.log('모듈로 분리한 후 - calc.add함수 호출 결과 : %d',calc.add(10,10));
 ```
 이렇게 만든 파일은 Main File이 되며, calc.js 모듈 파일을 불러와서 사용한다. calc.js 파일을 모듈로 불러오기 위해 require()함수를 호출. (이름 앞에 ./을 붙인 것은 파일 이름은 상대 패스로 지정하기 때문)
+
+
+### module.exports로 메인 파일에 더하기 함수 호출
+
+```shell
+var calc = {};
+
+calc.add = function(a,b){
+	return a+b;
+}
+
+module.exports = calc;
+```
+이 파일은 calc.js 파일처럼 exports의 속성으로 만들지 않고, calc객체를 만든 뒤 그 객체의 속성으로 더하기 함수를 할당, module.exports에 calc객체를 할당 했다. 
+위의 파일에 아래 코드를 추가해보자.
+```shell
+...
+var calc2 = require('./calc2');
+console.log('모듈로 분리한 후 - calc2.add함수 호출 결과 : %d',calc2.add(10,10));
+```
+결과는 다르지 않다.
+
+
+이제 앞에서 해결하지 못했던 JAVA_HOME 환경 변수 접근 문제를 모듈로 해결해 보자. 다른 사람이 시스템 환경 변수를 접근할 수 있는 모듈을 만들어 두었으니 그것을 불러와 실행하면 된다. 이와같이 다른 사람이 만들어 둔 모듈을 외장 모듈 이라고 한다.
+시스템 환경 변수에 접근할 수 있는 모듈의 이름은 nconf 이며, 이 모듈은 설정과 관련된 유용한 기능 뿐 아니라 시스템 환경 변수를 접근하는 기능도 포함하고 있다. 
+```shell
+var nconf = require('nconf');
+nconf.env();
+
+console.log('JAVA_HOME 환경 변수의 값 : %s',nconf.get('JAVA_HOME'));
+```
+nconf가 모듈로 만들어져 있으니 require()함수를 호출하여 불러온다. 그러나 우리가 직접 만든 모듈이 아니라면 상대 패스가 아닌 모듈의 이름만 지정해서 불러온다. nconf모듈은 그 모듈 안에 정의한 env()함수를 호출하면 환경 변수에 대한 정보를 가져와서 속성으로 보관한다.
+다른 사람이 만들어 둔 모듈은 npm 패키지를 사용하면 다운로드 하여 설치할수 있다.
+*** npm(Node Package Manager) : 노드의 패키지를 사용할 수 있도록 설치 및 삭제 등을 지원하는 프로그램.
+
+cmd에서 nconf 패키지를 설치 해 보자.
+```shell
+cd workspace\(프로젝트이름)
+npm install nconf
+node (파일이름)
+```
+JAVA_HOME 환경 변수의 값이 정상적으로 나온다면 제대로 설치가 된 것이다.
+이 npm으로 설치한 외부 패키지는 폴더 안에 있는 node_modules 에 설치 된다. 
+설치된 패키지는 설치된 위치에 따라서 적용되는 범위가 다르다. 모든 프로젝트에 적용하고 싶다면 node_modules 폴더를 프로젝트들의 상위 폴더인 workspace폴더로 옮기면 된다. 메인파일이 실행 될 때는 먼저 현제폴더에 node_modules 폴더가 있는지 확인 후 없다면 상위 폴더들을 순차적으로 확인 한다.
