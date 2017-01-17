@@ -225,3 +225,72 @@ node (파일이름)
 JAVA_HOME 환경 변수의 값이 정상적으로 나온다면 제대로 설치가 된 것이다.
 이 npm으로 설치한 외부 패키지는 폴더 안에 있는 node_modules 에 설치 된다. 
 설치된 패키지는 설치된 위치에 따라서 적용되는 범위가 다르다. 모든 프로젝트에 적용하고 싶다면 node_modules 폴더를 프로젝트들의 상위 폴더인 workspace폴더로 옮기면 된다. 메인파일이 실행 될 때는 먼저 현제폴더에 node_modules 폴더가 있는지 확인 후 없다면 상위 폴더들을 순차적으로 확인 한다.
+
+이 프로젝트에서 사용한 모듈을 다른 PC에서 그대로 사용하고 싶다면 package.json 파일만 다른 PC로 옮긴 후 다음 명령어를 입력하면 그 안에 들어있는 모든 패키지가 한꺼번에 설치된다.
+```shell
+npm install
+```
+이 명령은 package.json 파일을 찾은 후 그 안에 있는 dependencies속성의 값을 참조하여 패키지를 설치한다.
+
+
+
+# 02-5 간단한 내장 모듈 사용
+
+
+내장모듈?
+: 자주 사용하는 기본 기능을 노드에 포함시켜 제공하는 것. os모듈과 path모듈 등이 있다.
+*** 내장모듈이라고 무조건 외장모듈보다 편리한 것은 아니다.
+내장모듈에 대한 정보는 다음 사이트에서 찾아볼 수 있다.
+[내장모듈 관련 사이트](http://nodejs.org/api)
+
+
+### 시스템 정보를 알려주는 os모듈
+
+	hostname() : 운영체제의 호스트 이름을 알려 준다.
+	totalmem() : 시스템의 전체 메모리 용량을 알려 준다.
+	reemem() : 시스템에서 사용 가능한 메모리 용량을 알려 준다.
+	cpus() : CPU 정보를 알려준다.
+	networkinterfaces() : 네트워크 인터페이스 정보를 담은 배열 객체를 반환한다.
+
+(EX - os모듈)
+```shell
+var os = require('os');
+
+console.log('시스템의 hostname : %s',os.hostname());
+console.log('시스템으 메모리 : %d /%d',os.freemem(),os.totalmem());
+console.log('시스템의 CPU 정보\n');
+console.dir(os.cpus());
+console.log('시스템의 네트워크 인터페이스 정보\n');
+console.dir(os.networkInterfaces());
+```
+
+### 파일 패스를 다루는 path 모듈
+
+	join() : 여러 개의 이름들을 모두 합쳐 하나의 파일 패스로 만든다. 파일 패스를 완성할 때 구분자 등을 알아서 조정한다.
+	dirname() : 파일 패스에서 디렉터리 이름을 반환한다.
+	basename() : 파일 패스에서 파일의 확장자를 제외한 이름을 반환한다.
+	extname() : 파일 패스에서 파일의 확장자를 반환한다.
+
+(EX - path)
+```shell
+var path = require('path');
+
+var directories = ["users","mike","docs"];
+var docsDirectory = directories.join(path.sep);
+console.log('문서 디렉터리 : %s',docsDirectory);
+
+var curPath = path.join('/Users?mike','notepad.exe');
+console.log('파일 패스 : %s',curPath);
+```
+여러개의 이름을 담고 있는 배열 객체를 만들었을 때 배열 객체의 join() 메소드를 사용하면 하나의 디렉터리 이름이나 파일 이름으로 만들 수 있다. 또한 path객체의 join() 메소드를 사용해 디렉터리 이름과 파일 이름을 합칠 수도 있다.
+거꾸로 파일 패스에서 디렉터리 이름이나 파일 이름을 구별하고 싶을 때는 dirname(), basename(), extname()메소드를 사용하면 된다.
+```shell
+...
+var filename = "C:\\Users\\mike\\notepad.exe";
+var dirname = path.dirname(filename);
+var basename = path.basename(fileneme);
+var extname = path.extname(filename);
+
+console.log('디렉터리 : %s, 파일 이름 : %s, 확장자 : %s',dirname,basename,extname);
+```
+파일을 실행하면 여러 개의 이름을 합쳐서 만든 디렉터리 이름을 확인할 수 있다. 
