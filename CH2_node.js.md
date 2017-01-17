@@ -32,3 +32,45 @@ cmd에서 직접 코드를 입력해서 실행?
 console.log('결과는 %d입니다.',10);
 ```
 *** console객체란? : 전역 객체(Global Object)이다.
+*** node에서 사용가능한 대표적인 전역 객체
+  	console : 콘솔 창에 결과를 보여주는 객체
+	  process : 프로세스의 실행에 대한 정보를 다루는 객체
+	  exports : 모듈을 다루는 객체
+    
+(EX-console)
+```shell
+console.log('숫자 보여주기 : %d',10);
+console.log('문자열 보여주기 : %s','소녀시대');
+console.log('JSON객체 보여주기 : %j',{name:'소녀시대'});
+```
+실행시 함께 출력되는 undefined는 호출한 log()함수에서 반환되는 값이 없을때 나타남. null과는 다른 의미.
+undefined는 단순히 값이 존재하지 않는것, null은 의도적으로 값을 비운것.
+
+*** JSON포맷란? : 자바스크립트의 객체 포맷으로 단말끼리 데이터를 주고받을 때 많이 사용. 자바스크립트에서 객체를 만들때 사용하는 형식과 같음. 즉 {}를 이용해 객체를 만들 수 있으며, 그 안에 Key와 Value로 구성된 속성들은 , 로 구분.
+
+*** console 객체의 method
+		dir(object) : 자바스크립트 객체의 속성들을 출력.
+		time(id) : 실행 시간을 측정하기 위한 시작 시간을 기록.
+		timeEnd(id) : 실행 시간을 측정하기 위한 끝 시간을 기록.
+    
+*** Function과 Method의 차이? 다르지 않다.
+
+
+
+### 이클립스 프로젝트 안에 자바스크립트 파일을 만들고 실행
+
+: Project 우클릭 - New - JavaScript Source File - File이름.js
+
+(EX - console)
+```shell
+var result = 0;
+
+console.time('duration_sum');
+
+for(var i=1 ; i<=1000 ; i++){
+	result += i;
+}
+
+console.timeEnd('duration_sum');
+console.log('1부터 1000까지 더한 결과물 : %d',result);
+```
