@@ -79,6 +79,7 @@ console.log('1부터 1000까지 더한 결과물 : %d',result);
 
 위의 코드에 새로운 내용을 추가 해 보자.
 ```shell
+...
 console.log('현재 실행한 파일의 이름 : %s',__filename);
 console.log('현재 실행한 파일의 패스 : %s',__dirname);
 ```
@@ -88,6 +89,7 @@ console.log('현재 실행한 파일의 패스 : %s',__dirname);
 	
 이번에는 dir() method를 이용해 객체 안에 있는 속성들을 확인 해 보자.
 ```shell
+...
 var Person = {name : "소녀시대", age : 20};
 console.dir(Person);
 ```
@@ -97,3 +99,37 @@ console.dir(Person);
 
 
 # 02-3 프로세스 객체 살펴보기
+
+process 객체란?
+: 프로그램을 실행했을 때 만들어지는 프로세스 정보를 다루는 객체. 
+	argv : 프로세스를 실행할 때 전달되는 파라미터(매개변수)의 정보
+	env : 환경 변수 정보
+	exit() : 프로세스를 끝내는 메소드
+
+(EX - arvg)
+```shell
+console.log('argv 속성의 파라미터 수 : '+process.argv.length);
+console.dir(process.argv);
+```
+첫번째 파라미터 : node.exe파일의 이름 / 두번째 파라미터 : 자바스크립트 파일의 패스
+
+```shell
+...
+if(process.argv.length>2){
+	console.log('세 번째 파라미터의 값 : %s',process.argv[2]);
+}
+
+process.argv.forEach(function(item,index){
+	console.log(index + ' : ',item);
+});
+```
+
+***forEach() : 속성에 들어 있는 모든 값을 하나씩 출력. 배열 안에 들어 있는 각 아이템 값과 인덱스를 함께 전달.
+
+
+cmd창에 들어가 코드를 입력 해보자.
+```shell
+cd workspace\(프로젝트 이름)
+node (파일 이름) --port 7001
+```
+위에서 만든 파일이 실행됨을 볼 수 있다.
