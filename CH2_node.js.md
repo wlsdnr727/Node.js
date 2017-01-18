@@ -74,7 +74,7 @@ console.timeEnd('duration_sum');
 console.log('1부터 1000까지 더한 결과물 : %d',result);
 ```
 코드 입력 후 ctrl + s 를 눌러 저장. 그 후 실행을 해보자. 결과가 정상적으로 나오는가? 한글이 깨져서 보일 것 이다. 이는 소스에 입력한 글자의 한글 인코딩과 노드에서 자바스크립트 코드를 실행하여 보여 줄 때의 한글 인코딩이 달라서 발생하는 문제이다.
-해결방법? : Window - Preferences - General - Workspace - Text file encoding 항목에서 Other 체크 - TUF-8을 선택하여 인코딩 변경.
+해결방법? : Window - Preferences - General - Workspace - Text file encoding 항목에서 Other 체크 - UTF-8을 선택하여 인코딩 변경.
 
 위의 코드에 새로운 내용을 추가 해 보자.
 ```shell
