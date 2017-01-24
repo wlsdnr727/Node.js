@@ -26,9 +26,8 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 
 > * format() : URL 객체를 주소 문자로 변환
 
+[CH04_test1.js]
 ```shell
-// CH04_test1.js
-
 var url = require('url');
 
 // parse 메소드를 이용하여 URL 객체로 변환
