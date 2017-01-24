@@ -20,6 +20,8 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 
 《참고》
 
+> URL 표기 방식 중에 대표적으로 GET 방식과 POST 방식이 .
+
 > GET 방식이란 URL(Uniform Resource Locator) 주소 뒤에 파라미터를 붙이는 형식이다.
 
 > 파라미터가 잘못 입력되었거나 혹은 ID / Passwd 를 사용이 금지된 문자가 들어가게 만드는 경우에 잘못된 파라미터라고 뜨게 된다.
@@ -56,6 +58,8 @@ console.dir(curURL);
 > 그 중에서 Query(데이터베이스에 정보를 요청하는 것) 속성은 요청 파라미터 정보를 포함하고 있는데 이는 여러 개의 개별 파라미터의 합으로 구성된다.
 
 > 위에서 언급했듯이 개별 파라미터를 구분할 때 &로 구분하며, Node에서는 querystring 모듈을 사용하여 쉽게 분리할 수 있다.
+
+> ＊ URL : Protocol Identifier + Resource Name (Host Name, File Name, Port Number, Reference)
 
 【CH04_test1.js (cont'd)】
 ```shell
