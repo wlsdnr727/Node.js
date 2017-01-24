@@ -72,9 +72,15 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 
 # § 이벤트란?
 
+![Event Loop](https://github.com/SKKUMathcom/Node.js/blob/master/image/syhan_140320_node1_041.png)
+
 > 이벤트란 한쪽에서 다른 쪽으로 어떤 일이 발생했음을 알려주는 것을 말한다.
 
 > Node에서는 대부분 이벤트를 기반으로 하는 비동기 방식(Non-Blocking IO) 으로 일을 처리한다. → CH1 참조
+
+> 클라이언트의 요청을 비동기로 처리하기 위하여 이벤트가 발생하며 서버 내부에 메시지 형태로 전달된다. 
+
+> 서버 내부에서는 이 메시지를 Event Loop가 처리한다. Event Loop가 처리하는 동안 제어권은 다음 요청으로 넘어가고 처리가 완료되면 Callback을 호출하여 처리완료를 호출 측에 알려주는 방식이다.
 
 > 이벤트를 전달한다는 것은 '지금 이쪽의 상태는 이렇다' 라는 정보를 다른 쪽으로 보내는 것을 의미한다.
 
@@ -85,3 +91,5 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 > Node 상에는 이벤트를 쉽게 주고받을 수 있게 EventEmitter를 사용한다.
 
 ## 이벤트 보내고 받기
+
+> Node
