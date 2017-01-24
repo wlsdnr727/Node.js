@@ -164,4 +164,69 @@ module.exports = Calc;
 module.exports.title = 'calculator';
 ```
 
-> 
+> Calc 객체는 계산기 객체로서 function 키워드를 사용해 프로토타입 객체로 만든다.
+
+> 그 후 Calc 객체가 이벤트 처리를 할 수 있도록 EventEmitter를 상속하게 만든다. util 모듈의 inherits() 메소드를 사용하면 쉽게 상속을 정의할 수 있다.
+
+【CH04_test4.js】
+```shell
+var Calc = require('./calc3');
+
+var calc = new Calc();
+
+calc.emit('stop');
+
+console.log(Calc.title + '에 stop 이벤트 전달함');
+```
+
+> Calc 객체는 프로토타입 객체로 계산기 기능을 정의만 한 것이므로 new 연산자를 이용하여 인스턴스 객체를 만든다.
+
+> 그 후 emit() 메소드를 호출하여 stop 이벤트를 전달한다.
+
+# § 파일 다루기
+
+> 앞서 우리는 Blocking I/O와 Non-Blocking I/O의 차이점에 대해서 배운 적이 있다.
+
+> Node의 파일 시스템은 파일을 다루는 기능과 디렉터리를 다루는 기능으로 구성되어 있으며, Blocking I/O와 Non-Blocking I/O 기능을 함께 제공한다.
+
+> Blocking I/O와 Non-Blocking I/O를 구분하기 위해 Blocking I/O 메소드는 Sync라는 단어를 붙인다.
+
+## 파일 읽기 / 쓰기
+
+【CH04_test5.js】
+```shell
+var fs = require('fs');
+
+// Reading a file as Blocking I/O
+
+var data = fs.readFileSync('./README.md', 'utf8');
+
+// Data Output
+
+console.log(data);
+```
+> 파일 시스템에 접근하기 위해 fs 모듈을 사용한다.
+
+> 위 코드는 Blocking I/O 로 실행이 되었기 때문에 consloe.log() 부분은 파일을 다 읽을 때까지 실행되지 않는다.
+
+【CH04_test6.js】
+```shell
+var fs = require('fs');
+
+// Reading a file as Non-Blocking I/O
+
+fs.readFile('./README.md', 'utf8', function(err, data) {
+	
+	// Data Output
+	console.log(data);
+});
+
+console.log('프로젝트 폴더 안의 README.md 파일을 읽도록 요청했습니다.');
+```
+> readFile() 메소드를 실행하면서 세 번째 파라미터로 전달된 function은 파일을 읽어 들이는 작업이 끝났을 때 호출된다.
+
+> 이 때 function의 파라미터 err, data를 전달받아 오류가 발생했는지 아닌지를 확인할 수 있다.
+
+> 오류가 발생하였을 때 err에 오류 데이터가 들어가고 그렇지 않았을 때에는 null이 된다.
+
+> 즉, 일반적으로 err의 값이 null인지 아닌지 체크하는 코드를 사용한 후 문제가 없으면 파일 읽기가 성공한 것으로 처리한다.
