@@ -461,3 +461,88 @@ fs.mkdir('./docs', 0666, function(err) {
 > 주석을 한꺼번에 간단히 처리하고 싶다?
 
 > ☞ 주석하고 싶은 부분을 블록 지정한 후 Ctrl + / (주석 풀 때도 마찬가지)
+
+# § 로그 파일 남기기
+
+> console 객체의 log() 또는 error() 메소드 등을 호출하면 로그를 출력할 수 있다.
+
+> 하지만 프로그램의 크기가 커질수록 로그의 양이 많아지기 때문에 단순히 출력하는 것만으로는 무리가 있다. 그렇다면 로그를 어떻게 남기고 보관할까?
+
+> Node 상에서는 winston 모듈을 이용하여 로그를 남길 수 있다.
+
+【CH04_test15.js】
+```shell
+// 로그 처리 모듈
+var winston = require('winston');
+
+// 로그 일별 처리 모듈
+var winstonDaily = require('winston-daily-rotate-file');
+
+// 시간 처리 모듈
+var moment = require('moment');
+
+function timeStampFormat() {
+	return moment().format('YYYY-MM-DD HH:mm:ss.SSS ZZ');
+
+};
+
+var logger = new (winston.Logger)({
+	transports: [
+		new (winstonDaily)({
+			name: 'info-file',
+			filename: './log/server',
+			datePattern: '_yyyy-MM-dd.log',
+			colorize: false,
+			maxsize: 50000000,
+			maxFiles: 1000,
+			level: 'info',
+			showLevel: true,
+			json: false,
+			timestamp: timeStampFormat
+		}),
+		
+		new (winston.transports.Console)({
+			name: 'debug-console',
+			colorize: true,
+			level: 'debug',
+			showLevel: true,
+			json: false,
+			timestamp : timeStampFormat
+		})
+	],
+	exceptionHandlers: [
+		new (winstonDaily)({
+			name: 'exception-file',
+			filename: './log/exception',
+			datePattern: '_yyyy-MM-dd.log',
+			colorize: false,
+			maxsize: 50000000,
+			maxFiles: 1000,
+			level: 'error',
+			showLevel: true,
+			json: false,
+			timestamp: timeStampFormat
+		}),
+		new (winston.transports.Console)({
+			name: 'exception-console',
+			colorize: true,
+			level: 'debug',
+			showLevel: true,
+			json: false,
+			timestamp: timeStampFormat
+		})
+	]
+});
+```
+
+> 파일 실행 전 winston, winston-daily-rotate-file, 그리고 moment 모듈을 설치해야 한다.
+
+```shell
+% npm install winston --save
+% npm install winston-daily-rotate-file --save
+% npm install moment --save
+```
+
+> winston 모듈은 로그를 파일로 저장하면서 동시에 화면에 출력되도록 설정할 수 있다.
+
+> 로그를 파일이나 화면에 출력하고 싶다면 logger 객체에 들어 있는 debug(), info(), error() 와 같은 메소드를 호출하면 된다.
