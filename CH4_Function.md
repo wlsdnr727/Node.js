@@ -18,6 +18,12 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 
 > 즉, url 모듈을 사용하면 주소 문자열을 URL 객체로 만들거나 URL 객체에서 주소 문자열로 변환하는 일이 간편해진다.
 
+《참고》
+
+> GET 방식이란 URL(Uniform Resource Locator) 주소 뒤에 파라미터를 붙이는 형식이다.
+
+> 파라미터가 잘못 입력되었거나 혹은 ID / Passwd 를 사용이 금지된 문자가 들어가게 만드는 경우에 잘못된 파라미터라고 뜨게 된다.
+
 ## 주소 문자열을 URL 객체로 변환
 
 > url 모듈에서 쓰이는 주요 메소드는 다음과 같다.
@@ -269,6 +275,7 @@ fs.writeFile('./output.txt', 'Hello World!', function(err) {
 var fs = require('fs');
 
 fs.open('./output.txt', 'w', function(err, fd) {
+	// throw 구문을 이용하여 강제로 예외를 발생시킴	
 	if(err) throw err;
 	
 	var buf = new Buffer('안녕!\n');
@@ -283,4 +290,132 @@ fs.open('./output.txt', 'w', function(err, fd) {
 	});
 });
 ```
+
+> 함수 호출 순서 : open → write → close
+
+> open() 메소드 간 세 개의 파라미터가 사용되었는데 첫 번째는 파일의 이름, 두 번째는 파일을 읽거나 쓰기 위한 플래그이다.
+
+> 다음은 대표적인 플래그이다.
+
+> * 'r' : 읽기에 사용하는 플래그. 파일이 없으면 예외 발생
+
+> * 'w' : 쓰기에 사용하는 플래그. 파일이 없으면 만들어지고 파일이 있으면 이전 내용을 모두 삭제함
+
+> * 'w+' : 읽기와 쓰기에 사용하는 플래그. 파일이 없으면 만들어지고 파일이 있으면 이전 내용을 모두 삭제함
+
+> * 'a+' : 읽기와 추가에 사용하는 플래그. 파일이 없으면 만들어지고 있으면 이전 내용에 새로운 내용 추가
+
+【CH04_test9.js】
+```shell
+var fs = require('fs');
+
+fs.open('./output.txt', 'r', function(err, fd) {
+	if(err) throw err;
+	
+	var buf = new Buffer(10);
+	console.log('버퍼 타입 : %s', Buffer.isBuffer(buf));
+	
+	fs.read(fd, buf, 0, buf.length, null, function(err, bytesRead, buffer) {
+		if(err) throw err;
+		
+		var inStr = buffer.toString('utf8', 0, bytesRead);
+		console.log('파일에서 읽은 데이터 : %s', inStr);
+		
+		console.log(err, bytesRead, buffer);
+		
+		fs.close(fd, function() {
+			console.log('output.txt 파일을 열고 읽기 완료!');
+		});
+	});
+});
+```
+
+> Buffer 객체는 바이너리 데이터를 읽고 쓰는 데 사용한다.
+
+## Buffer 객체 사용 방법
+
+【CH04_test10.js】
+```shell
+var output = '안녕 1!';
+var buffer1 = new Buffer(10);
+var len = buffer1.write(output, 'utf8');
+console.log('첫 번째 버퍼의 문자열 : %s', buffer1.toString());
+
+var buffer2 = new Buffer('안녕 2!', 'utf8');
+console.log('두 번째 버퍼의 문자열 : %s', buffer2.toString());
+
+console.log('버퍼 객체의 타입 : %s', Buffer.isBuffer(buffer1));
+
+var byteLen = Buffer.byteLength(output);
+var str1 = buffer1.toString('utf8', 0, byteLen);
+var str2 = buffer2.toString('utf8');
+
+// 첫 번째 버퍼 객체의 문자열을 두 번째 버퍼 객체로 복사
+buffer1.copy(buffer2, 0, 0, len);
+console.log('두 번째 버퍼에 복사한 후의 문자열 : %s', buffer2.toString('utf8'));
+
+// 두 개의 버퍼를 붙임
+var buffer3 = Buffer.concat([buffer1, buffer2]);
+console.log('두 개의 버퍼를 붙인 후의 문자열 : %s', buffer3.toString('utf8'));
+```
+
+## 스트림 단위로 파일 읽거나 쓰기
+
+> 파일을 읽거나 쓸 때 데이터 단위가 아닌 스트림 단위로 처리할 수도 있다. 스트림은 시간이 지남에 따라 사용할 수 있게 되는 일련의 데이터 요소를 가리키는 수많은 방식에서 쓰인다. 즉, 다시 말해 데이터가 전달되는 통로와 같은 개념으로 생각하면 되겠다.
+
+> * createReadStream(path[, options]) : 파일을 읽기 위한 스트림 객체를 만듦
+
+> * createWriteStream(path[, options]) : 파일을 쓰기 위한 스트림 객체를 만듦
+
+> 다음은 output.txt 파일의 내용을 읽은 후 output2.txt 파일로 쓰는 코드이다.
+
+【CH04_test11.js】
+```shell
+var fs = require('fs');
+
+var infile = fs.createReadStream('./output.txt', {flags : 'r'});
+var outfile = fs.createWriteStream('./output2.txt', {flags : 'w'});
+
+infile.on('data', function(data) {
+	console.log('읽어 들인 데이터', data);
+	outfile.write(data);
+});
+
+infile.on('end', function() {
+	console.log('파일 읽기 종료');
+	outfile.end(function() {
+		console.log('파일 쓰기 종료');
+	});
+});
+```
+
+> 위 코드 실행 시 output2.txt 파일이 새로 생성되며, output.txt 파일의 내용이 똑같이 들어가게 된다.
+
+> 위 코드는 pipe() 메소드를 사용하면 더 간편해진다. pipe() 메소드는 두 개의 스트림을 붙여 주는 역할을 한다. ReadStream 타입의 객체와 WriteStream 객체를 붙여주게 되면 스트림 간에 데이터를 알아서 전달하게 된다.
+
+【CH04_test12.js】
+```shell
+var fs = require('fs');
+var inname = './output.txt';
+var outname = './output2.txt';
+
+fs.exists(outname, function(exists) {
+	if(exists) {
+	// unlink() 메소드를 이용하여 이전 파일을 삭제		
+	fs.unlink(outname, function(err) {
+			if(err) throw err;
+			console.log('기존 파일 [' + outname + '] 삭제함');
+		});
+	}
+	
+	var infile = fs.createReadStream(inname, {flags : 'r'});
+	var outfile = fs.createWriteStream(outname, {flags : 'w'});
+	
+	infile.pipe(outfile);
+	console.log('파일 복사 [' + inname + '] -> [' + outname + ']');
+	
+});
+```
+
+## http 모듈로 요청받은 파일 내용을 읽고 응답하기
 
