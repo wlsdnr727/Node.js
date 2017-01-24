@@ -20,7 +20,7 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 
 《참고》
 
-> URL 표기 방식 중에 대표적으로 GET 방식과 POST 방식이 .
+> URL 표기 방식 중에 대표적으로 GET 방식과 POST 방식이 있다.
 
 > GET 방식이란 URL(Uniform Resource Locator) 주소 뒤에 파라미터를 붙이는 형식이다.
 
