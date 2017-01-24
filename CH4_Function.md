@@ -230,3 +230,57 @@ console.log('프로젝트 폴더 안의 README.md 파일을 읽도록 요청했�
 > 오류가 발생하였을 때 err에 오류 데이터가 들어가고 그렇지 않았을 때에는 null이 된다.
 
 > 즉, 일반적으로 err의 값이 null인지 아닌지 체크하는 코드를 사용한 후 문제가 없으면 파일 읽기가 성공한 것으로 처리한다.
+
+> 다음은 파일을 읽고 쓸 때 사용하는 대표적인 메소드이다.
+
+> * readFile(filename, [encoding], [callback]) : Non-Blocking I/O 로 파일을 읽음
+
+> * writeFile(filename, data, encoding='utf8', [callback]) : Non-Blocking I/O 로 파일을 씀
+
+> * readFileSync(filename, [encoding]) : Blocking I/O 로 파일을 읽음
+
+> * writeFileSync(filename, data, encoding='utf8') : Blocking I/O 로 파일을 씀
+
+【CH04_test7.js】
+```shell
+var fs = require('fs');
+
+fs.writeFile('./output.txt', 'Hello World!', function(err) {
+	if(err) {
+		console.log('Error : ' + err);
+	}
+	
+	console.log('output.txt 파일에 데이터 쓰기 완료!');
+	
+});
+```
+
+> 파일을 실행했을 때 프로젝트 폴더 안에 output.txt 파일이 만들어지고 그 안에 'Hello World!' 가 쓰여있는 것을 확인할 수 있다.
+
+## 파일을 직접 열고 닫으면서 읽거나 쓰기
+
+> * open(path, flags [, mode] [, callback]) : 파일 열기
+> * read(fd, buffer, offset, length, position [, callback]) : 지정한 부분의 파일 내용을 읽어들임
+> * write(fd, buffer, offset, length, position [, callback]) : 지정한 부분에 데이터를 씀
+> * close(fd [, callback]) : 파일 닫기
+
+【CH04_test8.js】
+```shell
+var fs = require('fs');
+
+fs.open('./output.txt', 'w', function(err, fd) {
+	if(err) throw err;
+	
+	var buf = new Buffer('안녕!\n');
+	fs.write(fd, buf, 0, buf.length, null, function(err, written, buffer) {
+		if(err) throw err;
+		
+			console.log(err, written, buffer);
+		
+		fs.close(fd, function() {
+			console.log('파일 열고 데이터 쓰고 파일 닫기 완료!');
+		});
+	});
+});
+```
+
