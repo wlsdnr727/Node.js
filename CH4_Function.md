@@ -118,3 +118,48 @@ setTimeout(function() {
 	
 }, 2000);
 ```
+
+> 그렇다면 우리가 직접 만든 이벤트는 어떻게 처리할 수 있을까?
+
+【CH04_test3.js】
+```shell
+process.on('tick', function(count){
+	console.log('tick 이벤트 발생  : %s', count);
+});
+
+setTimeout(function() {
+	console.log('2초 뒤에 tick 이벤트 전달 시도함');
+	
+	process.emit('tick', '2');
+	
+}, 2000);
+```
+
+> 위 코드에서는 setTimeout() 메소드를 이용하여 process.emit() 메소드 호출 후 tick 이벤트를 process 객체로 전달하였다. process.on() 메소드를 호출하여 이벤트를 등록하면 tick 이벤트가 발생하였을 때 Callback 함수가 실행된다.
+
+## 계산기 객체를 모듈로 만들어보기
+
+【calc3.js】
+```shell
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+
+var Calc = function() {
+	var self = this;
+	
+	this.on('stop', function() {
+		console.log('Calc에 stop event 전달됨');
+	});
+};
+
+util.inherits(Calc, EventEmitter);
+
+Calc.prototype.add = function(a, b) {
+	return a + b;
+};
+
+module.exports = Calc;
+module.exports.title = 'calculator';
+```
+
+> 
