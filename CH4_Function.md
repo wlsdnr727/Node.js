@@ -435,3 +435,29 @@ var server = http.createServer(function(req, res) {
 
 server.listen(7001, '127.0.0.1');
 ```
+
+> 웹 서버에서 클라이언트로부터 요청을 받으면 먼저 output.txt 파일에서 스트림을 만든 후 클라이언트로 데이터를 보낼 수 있는 스트림과 연결해 준다.
+
+> 읽기 스트림과 쓰기 스트림의 연결이 가능한 이유는 파일에서 데이터를 읽기 위해 만든 것이 스트림 객체이고, 데이터를 쓰기 웹 서버에서 클라이언트 쪽에 만든 것 역시 스트림 객체이기 때문이다.
+
+## fs 모듈로 새 디렉터리 만들고 삭제하기
+
+【CH04_test14.js】
+```shell
+var fs = require('fs');
+fs.mkdir('./docs', 0666, function(err) {
+	if(err) throw err;
+	console.log('새로운 docs 폴더를 만들었습니다.');
+	
+	fs.rmdir('./docs', function(err) {
+		if(err) throw err;
+		console.log('docs 폴더를 삭제했습니다.');
+	});
+});
+```
+
+《참고》
+
+> 주석을 한꺼번에 간단히 처리하고 싶다?
+
+> ☞ 주석하고 싶은 부분을 블록 지정한 후 Ctrl + / (주석 풀 때도 마찬가지)
