@@ -331,7 +331,7 @@ fs.open('./output.txt', 'r', function(err, fd) {
 });
 ```
 
-> Buffer 객체는 바이너리 데이터를 읽고 쓰는 데 사용한다.
+> Buffer(읽고 쓰기가 가능한 메모리 배열) 객체는 바이너리 데이터를 읽고 쓰는 데 사용한다.
 
 ## Buffer 객체 사용 방법
 
