@@ -33,8 +33,7 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 > * format() : URL 객체를 주소 문자로 변환
 
 【CH04_test1.js】
-<pre><code>
-
+```shell
 // url 메소드를 require()를 이용하여 로딩한 후 parse()와 format() 메소드 호출
 var url = require('url');
 
@@ -48,7 +47,7 @@ var curStr = url.format(curURL);
 
 console.log('주소 문자열 : %s', curStr);
 console.dir(curURL);
-</code></pre>
+```
 
 ## 요청 파라미터 확인하기
 
@@ -59,7 +58,7 @@ console.dir(curURL);
 > 위에서 언급했듯이 개별 파라미터를 구분할 때 &로 구분하며, Node에서는 querystring 모듈을 사용하여 쉽게 분리할 수 있다.
 
 【CH04_test1.js (cont'd)】
-<pre><code>
+```shell
 ...
 // 요청 파라미터 구분하기
 
@@ -68,7 +67,7 @@ var param = querystring.parse(curURL.query);
 
 console.log('요청 파라미터 중 query의 값 : %s', param.query);
 console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
-</code></pre>
+```
 
 > * parse() : 요청 파라미터 문자열을 파싱하여 요청 파라미터 객체로 변환
 
@@ -111,7 +110,7 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 > * removeListener(event, listener) : 지정한 이벤트에 대한 리스너를 제거
 
 【CH04_test2.js】
-<pre><code>
+```shell
 
 // process 객체를 이용하여 EventEmitter를 상속받음
 
@@ -125,12 +124,12 @@ setTimeout(function() {
 	process.exit();
 	
 }, 2000);
-</code></pre>
+```
 
 > 그렇다면 우리가 직접 만든 이벤트는 어떻게 처리할 수 있을까?
 
 【CH04_test3.js】
-<pre><code>
+```shell
 process.on('tick', function(count){
 	console.log('tick 이벤트 발생  : %s', count);
 });
@@ -141,14 +140,14 @@ setTimeout(function() {
 	process.emit('tick', '2');
 	
 }, 2000);
-</code></pre>
+```
 
 > 위 코드에서는 setTimeout() 메소드를 이용하여 process.emit() 메소드 호출 후 tick 이벤트를 process 객체로 전달하였다. process.on() 메소드를 호출하여 이벤트를 등록하면 tick 이벤트가 발생하였을 때 Callback 함수가 실행된다.
 
 ## 계산기 객체를 모듈로 만들어보기
 
 【calc3.js】
-<pre><code>
+```shell
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
@@ -168,14 +167,14 @@ Calc.prototype.add = function(a, b) {
 
 module.exports = Calc;
 module.exports.title = 'calculator';
-</code></pre>
+```
 
 > Calc 객체는 계산기 객체로서 function 키워드를 사용해 프로토타입 객체로 만든다.
 
 > 그 후 Calc 객체가 이벤트 처리를 할 수 있도록 EventEmitter를 상속하게 만든다. util 모듈의 inherits() 메소드를 사용하면 쉽게 상속을 정의할 수 있다.
 
 【CH04_test4.js】
-<pre><code>
+```shell
 var Calc = require('./calc3');
 
 var calc = new Calc();
@@ -183,7 +182,7 @@ var calc = new Calc();
 calc.emit('stop');
 
 console.log(Calc.title + '에 stop 이벤트 전달함');
-</code></pre>
+```
 
 > Calc 객체는 프로토타입 객체로 계산기 기능을 정의만 한 것이므로 new 연산자를 이용하여 인스턴스 객체를 만든다.
 
@@ -200,7 +199,7 @@ console.log(Calc.title + '에 stop 이벤트 전달함');
 ## 파일 읽기 / 쓰기
 
 【CH04_test5.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 // Reading a file as Blocking I/O
@@ -210,13 +209,14 @@ var data = fs.readFileSync('./README.md', 'utf8');
 // Data Output
 
 console.log(data);
-</code></pre>
+```
+
 > 파일 시스템에 접근하기 위해 fs 모듈을 사용한다.
 
 > 위 코드는 Blocking I/O 로 실행이 되었기 때문에 consloe.log() 부분은 파일을 다 읽을 때까지 실행되지 않는다.
 
 【CH04_test6.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 // Reading a file as Non-Blocking I/O
@@ -228,7 +228,7 @@ fs.readFile('./README.md', 'utf8', function(err, data) {
 });
 
 console.log('프로젝트 폴더 안의 README.md 파일을 읽도록 요청했습니다.');
-</code></pre>
+```
 
 > readFile() 메소드를 실행하면서 세 번째 파라미터로 전달된 function은 파일을 읽어 들이는 작업이 끝났을 때 호출된다.
 
@@ -249,7 +249,7 @@ console.log('프로젝트 폴더 안의 README.md 파일을 읽도록 요청했�
 > * writeFileSync(filename, data, encoding='utf8') : Blocking I/O 로 파일을 씀
 
 【CH04_test7.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 fs.writeFile('./output.txt', 'Hello World!', function(err) {
@@ -260,7 +260,7 @@ fs.writeFile('./output.txt', 'Hello World!', function(err) {
 	console.log('output.txt 파일에 데이터 쓰기 완료!');
 	
 });
-</code></pre>
+```
 
 > 파일을 실행했을 때 프로젝트 폴더 안에 output.txt 파일이 만들어지고 그 안에 'Hello World!' 가 쓰여있는 것을 확인할 수 있다.
 
@@ -272,7 +272,7 @@ fs.writeFile('./output.txt', 'Hello World!', function(err) {
 > * close(fd [, callback]) : 파일 닫기
 
 【CH04_test8.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 fs.open('./output.txt', 'w', function(err, fd) {
@@ -290,7 +290,7 @@ fs.open('./output.txt', 'w', function(err, fd) {
 		});
 	});
 });
-</code></pre>
+```
 
 > 함수 호출 순서 : open → write → close
 
@@ -307,7 +307,7 @@ fs.open('./output.txt', 'w', function(err, fd) {
 > * 'a+' : 읽기와 추가에 사용하는 플래그. 파일이 없으면 만들어지고 있으면 이전 내용에 새로운 내용 추가
 
 【CH04_test9.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 fs.open('./output.txt', 'r', function(err, fd) {
@@ -329,14 +329,14 @@ fs.open('./output.txt', 'r', function(err, fd) {
 		});
 	});
 });
-</code></pre>
+```
 
 > Buffer 객체는 바이너리 데이터를 읽고 쓰는 데 사용한다.
 
 ## Buffer 객체 사용 방법
 
 【CH04_test10.js】
-<pre><code>
+```shell
 var output = '안녕 1!';
 var buffer1 = new Buffer(10);
 var len = buffer1.write(output, 'utf8');
@@ -358,7 +358,7 @@ console.log('두 번째 버퍼에 복사한 후의 문자열 : %s', buffer2.toSt
 // 두 개의 버퍼를 붙임
 var buffer3 = Buffer.concat([buffer1, buffer2]);
 console.log('두 개의 버퍼를 붙인 후의 문자열 : %s', buffer3.toString('utf8'));
-</code></pre>
+```
 
 ## 스트림 단위로 파일 읽거나 쓰기
 
@@ -371,7 +371,7 @@ console.log('두 개의 버퍼를 붙인 후의 문자열 : %s', buffer3.toStrin
 > 다음은 output.txt 파일의 내용을 읽은 후 output2.txt 파일로 쓰는 코드이다.
 
 【CH04_test11.js】
-<pre><code>
+```shell
 var fs = require('fs');
 
 var infile = fs.createReadStream('./output.txt', {flags : 'r'});
@@ -388,14 +388,14 @@ infile.on('end', function() {
 		console.log('파일 쓰기 종료');
 	});
 });
-</code></pre>
+```
 
 > 위 코드 실행 시 output2.txt 파일이 새로 생성되며, output.txt 파일의 내용이 똑같이 들어가게 된다.
 
 > 위 코드는 pipe() 메소드를 사용하면 더 간편해진다. pipe() 메소드는 두 개의 스트림을 붙여 주는 역할을 한다. ReadStream 타입의 객체와 WriteStream 객체를 붙여주게 되면 스트림 간에 데이터를 알아서 전달하게 된다.
 
 【CH04_test12.js】
-<pre><code>
+```shell
 var fs = require('fs');
 var inname = './output.txt';
 var outname = './output2.txt';
@@ -416,14 +416,14 @@ fs.exists(outname, function(exists) {
 	console.log('파일 복사 [' + inname + '] -> [' + outname + ']');
 	
 });
-</code></pre>
+```
 
 ## http 모듈로 요청받은 파일 내용을 읽고 응답하기
 
 > pipe() 메소드와 같이 스트림을 서로 연결하는 방법은 웹 서버를 만들고 사용자의 요청을 처리할 때 유용하다.
 
 【CH04_test13.js】
-<pre><code>
+```shell
 var fs = require('fs');
 var http = require('http');
 
@@ -434,4 +434,4 @@ var server = http.createServer(function(req, res) {
 });
 
 server.listen(7001, '127.0.0.1');
-</code></pre>
+```
