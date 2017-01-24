@@ -26,8 +26,10 @@ https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodej
 
 > * format() : URL 객체를 주소 문자로 변환
 
-[CH04_test1.js]
+【CH04_test1.js】
 ```shell
+
+// url 메소드를 require()를 이용하여 로딩한 후 parse()와 format() 메소드 호출
 var url = require('url');
 
 // parse 메소드를 이용하여 URL 객체로 변환
@@ -42,3 +44,22 @@ console.log('주소 문자열 : %s', curStr);
 console.dir(curURL);
 ```
 
+## 요청 파라미터 확인하기
+
+> URL 객체의 속성에는 주소 문자열의 여러 가지 정보가 포함되어 있다. 
+
+> 그 중에서 Query (데이터베이스에 정보를 요청하는 것) 속성은 요청 파라미터 정보를 포함하고 있는데 이는 여러 개의 개별 파라미터의 합으로 구성된다.
+
+> 위에서 언급했듯이 개별 파라미터를 구분할 때 &로 구분하며, Node에서는 querystring 모듈을 사용하여 쉽게 분리할 수 있다.
+
+【CH04_test1.js (cont'd)】
+```shell
+...
+// 요청 파라미터 구분하기
+
+var querystring = require('querystring');
+var param = querystring.parse(curURL.query);
+
+console.log('요청 파라미터 중 query의 값 : %s', param.query);
+console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
+```
