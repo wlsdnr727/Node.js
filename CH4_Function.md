@@ -76,7 +76,7 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 
 > 이벤트란 한쪽에서 다른 쪽으로 어떤 일이 발생했음을 알려주는 것을 말한다.
 
-> Node에서는 대부분 이벤트를 기반으로 하는 비동기 방식(Non-Blocking IO) 으로 일을 처리한다. → CH1 참조
+> 다시 짚고 넘어가자면 Node에서는 대부분 이벤트를 기반으로 하는 비동기 방식(Non-Blocking IO) 으로 일을 처리한다. → CH1 참조
 
 > 클라이언트의 요청을 비동기로 처리하기 위하여 이벤트가 발생하며 서버 내부에 메시지 형태로 전달된다. 
 
@@ -88,8 +88,33 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 
 > 이벤트 리스너는 특정 이벤트가 전달되었을 때 그 이벤트를 처리할 수 있도록 만들어 둔 것을 의미한다.
 
-> Node 상에는 이벤트를 쉽게 주고받을 수 있게 EventEmitter를 사용한다.
+> Node 상에는 이벤트를 쉽게 주고받을 수 있게 EventEmitter(이벤트를 발생시키는 모든 객체를 지칭) 를 사용한다.
 
 ## 이벤트 보내고 받기
 
-> Node
+> Node의 객체는 EventEmitter를 상속받을 수 있으며 그 후 EventEmitter 객체의 on()과 emit() 메소드를 사용할 수 있다.
+
+> 또한 once() 메소드를 사용하여 특정 이벤트 실행 후 자동으로 리스너가 제거되도록 설정할 수도 있다.
+
+> * on(event, listener) : 지정한 이벤트의 리스너를 추가
+
+> * once(event. listener) : 지정한 이벤트의 리스너를 추가하지만 한 번 실행한 후에는 자동으로 리스너가 제거
+
+> * removeListener(event, listener) : 지정한 이벤트에 대한 리스너를 제거
+
+【CH04_test2.js】
+```shell
+
+// process 객체를 이용하여 EventEmitter를 상속받음
+
+process.on('exit', function() {
+	console.log('exit 이벤트 발생');
+});
+
+setTimeout(function() {
+	console.log('2초 후 시스템 종료 시도함');
+	
+	process.exit();
+	
+}, 2000);
+```
