@@ -34,7 +34,7 @@ var url = require('url');
 
 // parse 메소드를 이용하여 URL 객체로 변환
 
-var curURL = url.parse('https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodejs');
+var curURL = url.parse('https://search.naver.com/search.naver?where=nexearch&query=nodejs&sm=top_hty&fbm=0&ie=utf8');
 
 // format 메소드를 이용하여 문자열로 변환
 
@@ -63,3 +63,10 @@ var param = querystring.parse(curURL.query);
 console.log('요청 파라미터 중 query의 값 : %s', param.query);
 console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 ```
+
+> * parse() : 요청 파라미터 문자열을 파싱하여 요청 파라미터 객체로 변환
+
+> * stringify() : 요청 파라미터 객체를 문자열로 변환
+
+> Q. https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodejs 문자열을 이용하였을 때에는 query의 값이 "undefined"로 나오게 된다. 왜 그럴까?
+
