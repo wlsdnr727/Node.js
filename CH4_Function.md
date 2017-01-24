@@ -8,8 +8,9 @@
 https://www.google.co.kr/search?q=url+%EB%AA%A8%EB%93%88&biw=1536&bih=735&source=lnms&sa=X&ved=0ahUKEwiy5L-gpdvRAhWGnJQKHeNQDOcQ_AUIBygA&dpr=1.25#q=nodejs
 ```
 
- 
-
 > 파라미터란 프로그램을 실행할 때 명령의 세부적인 동작을 구체적으로 지정하는 숫자는 문자를 의미한다.
 
 > 위와 같이 만들어진 주소 문자열은 단순 문자열이므로 서버에서 이 정보를 받아 처리할 때에는 어디까지가 주소이고 요청 파라미터인지 구별할 필요가 있다.
+
+> 어디까지가 URL 주소이고 어디까지가 값인지 판단하기 위해 ?로 구분하며, 개별값의 구분자로 &를 사용한다.
+
