@@ -5,7 +5,7 @@
 > 예를 들어 구글에서 "nodejs" 에 관한 정보를 얻기 위해서 "nodejs" 라는 키워드를 가지고 검색을 하였을 때 다음과 같은 주소 문자열을 만들어 검색 요청을 하게 된다.
 
 ```shell
-https://www.google.co.kr/search?q=url+%EB%AA%A8%EB%93%88&biw=1536&bih=735&source=lnms&sa=X&ved=0ahUKEwiy5L-gpdvRAhWGnJQKHeNQDOcQ_AUIBygA&dpr=1.25#q=nodejs
+https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodejs
 ```
 
 > 파라미터란 프로그램을 실행할 때 명령의 세부적인 동작을 구체적으로 지정하는 숫자는 문자를 의미한다.
@@ -20,4 +20,26 @@ https://www.google.co.kr/search?q=url+%EB%AA%A8%EB%93%88&biw=1536&bih=735&source
 
 ## 주소 문자열을 URL 객체로 변환
 
-> 
+> url 모듈에서 쓰이는 주요 메소드는 다음과 같다.
+
+> * parse() :  주소 문자열을 파싱하여 URL 객체로 변환
+
+> * format() : URL 객체를 주소 문자로 변환
+
+```shell
+// CH04_test1.js
+
+var url = require('url');
+
+// parse 메소드를 이용하여 URL 객체로 변환
+
+var curURL = url.parse('https://www.google.co.kr/?gfe_rd=cr&ei=p4aHWPjhAZHM8geAnZHACw&gws_rd=ssl#q=nodejs');
+
+// format 메소드를 이용하여 문자열로 변환
+
+var curStr = url.format(curURL);
+
+console.log('주소 문자열 : %s', curStr);
+console.dir(curURL);
+```
+
