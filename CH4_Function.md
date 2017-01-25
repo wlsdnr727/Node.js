@@ -109,7 +109,7 @@ console.log('원본 요청 파라미터 : %s', querystring.stringify(param));
 
 > * on(event, listener) : 지정한 이벤트의 리스너를 추가
 
-> * once(event. listener) : 지정한 이벤트의 리스너를 추가하지만 한 번 실행한 후에는 자동으로 리스너가 제거
+> * once(event, listener) : 지정한 이벤트의 리스너를 추가하지만 한 번 실행한 후에는 자동으로 리스너가 제거
 
 > * removeListener(event, listener) : 지정한 이벤트에 대한 리스너를 제거
 
