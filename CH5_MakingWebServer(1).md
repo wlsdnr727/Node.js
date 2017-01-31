@@ -341,3 +341,93 @@ server.on('close',function(){
 자세한 설명은 주석 열심히 달았으니 주석 열심히 보자.
 
 이런걸 어따 쓰냐면, 데이터를 조금씩 조금씩 보여주고 싶을때 씁니다.
+
+## 다른 웹사이트의 데이터를 가져와 웹서버에 띄우기.
+
+http 모듈은 서버기능외에 클라이언트 기능도 제공한다. 즉 http를 이용하면 다른 웹서버로부터 데이터를 요청할 수 있다.
+
+웹서버에 데이터 요청을 보내는 방식은 get, post, put, delete 등이 있는데, 이들 중 정보를 전달하는 방식이 get, post.
+
+***
+PS. Get과 Post
+
+Get | Post
+----:|:------
+모든 파라미터는 URL에 Query String 형식으로 전달.(URL뒷부분에 ?등으로 추가해서 전달) | HTTP Body안에 숨겨져서 전달
+주소란에 전송하는 자료와 변수이름 다 보임 | 내용이 직접노출되진 않지만, http response message를 분석하면 얼마든지 유출 가능
+길이제한이 있음 | 많은 양의 데이터를 보내기 적합 
+서버에서 데이터를 가져와 보여주는 용도. 서버의 값이나 상태를 바꾸지는 X | 서버의 값이나 상태를 바꾸기 위해 사용. DB에 저장되고 저장된값이 수정되고 함
+
+***
+
+http 모듈에서는 이럴 때 사용되는게 get기능을 수행하는 get()메소드와 post 기능을 수행하는 request()메소드가 있다.
+
+get()메소드를 사용한 방식의 코드를 살펴봅시다.
+
+[ch05_test7.js]
+
+```shell
+
+var http = require('http');
+var options = {
+		host: 'www.google.com',
+		port: 80,
+		path: '/'
+}; //google 도메인 페이지에서 80번 포트로..  가져올 서버(호스트)의 정보
+
+var req = http.get(options,function(res){ //첫번째 input은 다른사이트의 정보
+	var resData = '';
+	res.on('data',function(chunk){ //응답데이터를 받을 때 활성화 되는 이벤트
+		resData+=chunk; //이때 받은 데이터를 모두 resData에 저장.
+	});
+	res.on('end',function(){ //응답데이터를 모두 받으면 활성화되는 이벤트
+		console.log(resData); //받은 데이터를 console창에 뿌림.
+	});
+	req.on('error',function(err){
+		console.log("오류 발생:"+err.message);
+	})
+})
+```
+결과창에는 google에서 온 응답이 뜬다. 
+
+data이벤트는 데이터를 수신했을 때 활성화되고, end 이벤트는 서버(호스트)로부터 데이터를 받는게 끝나면 활성화된다. 
+
+일단은 자세한 내용까진 나가지말고 이정도만 알아두자. 
+
+이번엔 request로 데이터를 가져오는 방법이다.
+
+[ch05_test8.js]
+```shell
+var http = require('http');
+var options = {
+		host: 'www.naver.com',
+		port: 80,
+		path: '/',
+		headers: {}
+}; //google 도메인 페이지에서 80번 포트로..  이 사이트의 정보
+
+var resData = '';
+var req = http.request(options, function(res){
+	res.on('data',function(chunk){
+		resData+=chunk;
+	});
+	res.on('end',function(){
+		console.log(resData);
+	});
+});
+//여기까지는 get과 큰 차이없음.. 이후를 선언하는 이유는 get은 URL로 전송되서 URL이바뀌면 되는 반면 request는 http를 뜯어야해서 그런거같다.
+options.headers['Content-Type'] = 'application/x-www-form-urlencoded'; //header를 인터넷 urlencoded로 설정.
+req.data = "q=actor";
+options.headers['Content-Length'] = req.data.length;
+req.on('error',function(err){
+	console.log("오류발생: "+err.message);
+});
+
+req.write(req.data);
+req.end();
+
+
+```
+
+솔직히 이건 도저히 모르겠으니 넘어갑시다. ㅎㅎ
+
