@@ -431,3 +431,144 @@ req.end();
 
 솔직히 이건 도저히 모르겠으니 넘어갑시다. ㅎㅎ
 
+# 익스프레스로 웹서버 만들기
+
+http 모듈을 사용하면 많은것들을 직접 만들어야하는 수고가 생긴다. 고로 express모듈을 사용해 좀더 간단하게 만듭시다.
+
+express에는 특히 미들웨어와 라우터를 제공해서 더 편하다는데 이거는 다음번에 인철이가 할꺼에요.
+
+일단 그림과 같이 Express project를 만듭시다.
+
+![ch05_2](https://github.com/SKKUMathcom/Node.js/blob/master/image/ch05_2.PNG)
+
+시작점은 app.js파일이다. app.js를 보면 require를 통해 여러 모듈을 불러오는걸 볼 수 있다.
+
+```shell
+var express = require('express')
+  , routes = require('./routes')
+  , user = require('./routes/user')
+  , http = require('http')
+  , path = require('path');
+```
+
+보면 routes, 와 routes/user는 상대경로로 되어있음. 이것들은 express를 생성하면서 만들어진 모듈. 나머지는 npm이나 내장된 모듈
+
+'./routes'는 routes 폴더에 있는 index.js 를 불러오고(폴더를 지정하면 항상 그 안의 index.js 를 불러오니 알아둡시다), './routes/user'는 routes 에 있는 user.js를 불러온다.
+
+express 모듈은 http모듈위에 사용되는 것이기 때문에 하상 http모듈도 같이 불러와야함. 
+
+'''shell
+var app = express();
+'''
+
+그 다음으로는 express()라는 메소드를 호출하여 이를 app에 저장.
+
+```shell
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+```
+app의 속성을 설정
+
+```shell
+app.use(express.favicon());
+app.use(express.logger('dev'));
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
+
+// development only
+if ('development' == app.get('env')) {
+  app.use(express.errorHandler());
+}
+```
+미들웨어 사용 설정
+
+```shell
+app.get('/', routes.index);
+app.get('/users', user.list);
+```
+
+클라이언트 요청처리
+
+```shell
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+서버 구동
+
+과 같은 구조로 되어있다. http를 사용한것과의 차이점은 createServer()의 메소드에 app이라는 express()로 만들어진 "익스프레스 서버 객체"를 전달한다는것이다. 
+
+익스프레스서버의 주요 메소드는 다음과 같다.
+
+Method | description
+-----:|:-------
+set(name, value) | 서버 설정을 위한 속성 지정. get(name)을 통해 꺼내 확인 가능. 대표적인 속성으로는 env(서버 모드), view(뷰들이 들어있는 폴더 또는 폴더배열), view engine(디폴트로 사용할 뷰엔진) 이 있다.
+get(name)        | 서버설정을 위해 지정한 속성을 꺼냄
+use([path,] function[,function....]) | 미들웨어함수를 사용.
+get([path,] function) | 특정 패스로 요청된 정보 처리.(클라이언트의 GET요청을 처리)
+
+## set()
+
+앞서 본 app.js 코드에서 set이 하는 기능을 살펴보자.
+
+code    | ref
+--------:|:-----------
+"app.set('port', process.env.PORT \|\| 3000)" | process.env 객체에 PORT 속성이 있으면 그걸로, 아니면 3000으로.
+"app.set('views', __dirname + '/views')" | views가 들어있는 곳은 전역변수 __dirname(=프로젝트 dir) 의 하위폴더인 views 로 설정
+"app.set('view engine', 'jade')" | 클라이언트에 응답을 보낼 때 사용하는 템플랫. 추후에 본다고 합니다.
+
+
+## use()
+
+node에서는 미들웨어를 사용하여 필요한 기능을 순차적으로 사용할 수 있다. 미들웨어는 서버와 클라이언트 사이에서 양쪽(server-client를 연결할 수도 있고 client-middleware를 연결할 수도있고 etc..) 데이터를 주고 받을 수 있도록 중간에서 매게역할을 하는 소프트웨어이다.
+주로 데이터베이스와 웹브라우저 사이에 존재하는데 이 익스프레스에서 미들웨어를 사용하는 방식은 아래와 같다. 
+
+![ch05_3](https://github.com/SKKUMathcom/Node.js/blob/master/image/ch05_3.PNG)
+
+여러개의 미들웨어를 통해 기능을 순차적으로 전달하고 이를 라우터로 전달하는 식이며 이때 미들웨어를 설정하는 함수가 use()이다. 
+
+여기서 라우터란 사용자의 요청에 따라 사용자가 필요한 정보를 제공하는 기능을 하는 미들웨어를 의미하며 get() 메소드를 통해 설정한다.
+
+각각의 미들웨어는 next() 메소드를 호출하여 그다음 미들웨어가 처리할수 있도록 순서를 넘기는 식이다. 
+
+라우터는 이따 자세히 알아보도록 하고 먼저 미들웨어의 간략한 예를 봅시다. 
+
+일단 이전 파일의 18번째 줄부터 31번째 줄까지 전부 주석처리를 해버리고 32번째 줄부터 아래 코드를 추가합시다.
+
+```shell
+app.use(function(req,res,next){
+	console.log('첫 번째 미들웨어에서 요청을 처리함');
+	
+	req.user = 'MathCom'
+	next();
+});
+
+app.use(function(req,res,next){
+	console.log('두 번째 미들웨어에서 요청을 처리함');
+	
+	res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+	res.end('<h1>Express 서버에서'+req.user+'가 응답한 결과입니다.</h1>');
+});
+```
+
+이제 app.js를 node.js application으로 run 한 뒤 http://localhost:3000을 들어가면 첫번째 미들웨어와 두번째 미들웨어가 순차적으로 실행되는걸 확인할 수 있다.
+
+좀 event handler 를 사용할 수 있게 되면 첫번째 미들웨어에서 event를 받아 설정하고 두번째 미들웨어에서 처리하고 이런식으로 함수를 나눠짤 수 있다. 근데 우린 언제 그쯤 될까...ㅋㅋㅋㅋ
+
+중요한건 next()메소드를 이용해서 다음 미들웨어로 req, res, next 객체를 넘겨줘야한다는거. 
+
+## res, req 객체
+
+익스프레스에서 res(response:응답객체)와 req(request:요청객체)는 http모듈에서 사용하는 객체들과 같지만 몇개의 메소드가 추가로 있다. 다음은 express의 res에 추가할 수 있는 메소드들이다.
+
+메소드  | 설명
+-------:|:----------
+send([body]) | 클라이언트에 응답할 데이터를 보낸다. 전달할 수 있는 데이터는 HTML, Buffer, JSON, JSON배열 이다.
+status(code) | HTTP 상태코드를 반환. 상태코드는 end()나 send()같은 전송메소드를 추가로 호출해야 전송할 수 있다.
+sendStatus(statusCode) | HTTP 상태코드를 반환하는데 상태코드는 상태메세지와 함께 전송된다. 
+redirect([status,]path) | 해당 웹페이지 경로로 강제로 이동시킨다.
+render(view[,locals][,callback]) | 뷰엔진을 사용해 문서를 만든 후 전송한다.
+
