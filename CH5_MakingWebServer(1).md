@@ -161,3 +161,97 @@ write(chunk,[,encoding][,callback]) | 응답 본문데이터를 만듦니다.
 end([data][,encoding][,callback]) | 클라이언트로 응답을 전송. 파라미터에 data가 포함되면 data를포함하여 응답 전송. callback은 응답이 전송된 후 호출.
 
 [위키피디아 HTTP 상태코드](https://ko.wikipedia.org/wiki/HTTP_%EC%83%81%ED%83%9C_%EC%BD%94%EB%93%9C)
+
+
+request 이벤트 핸들러를 이용하지 않고, 서버를 생성하면서 바로 html을 작성할 수도 있음. 헷갈릴테니 본문 전체를 아래와 같이 수정합시다.
+
+```shell
+
+var http = require('http');
+var server = http.createServer(function(req,res){
+	
+	console.log('client requenst is comming');
+	res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"}); //header를 작성. 200은 status code (404처럼 상태에 대한 코드), 이후 내용은 header의 속성
+	res.write("<!DOCTYPE html>"); //document의 type이 html
+	res.write("<html>");
+	res.write("	<head>");
+	res.write("		<title>응답페이지</title>");
+	res.write("	</head>");
+	res.write("	<body>");
+	res.write("		<h1>노드제이에스로부터 응답페이지</h1>");
+	res.write("	<body>");
+	res.write("</html>"); //여기까지는 html의 내용
+	res.end(); //res에 쓰는게 끝난걸 알림.
+	
+});
+var port = 3000;
+server.listen(port,'127.0.0.1',function(){
+	console.log('웹서버가 시작되었습니다.: %d',port);
+});
+
+//event connection handler
+server.on('connection',function(socket){
+	var addr = socket.address();
+	console.log('client is connected :%s,%d',addr.address,addr.port);
+});
+
+
+	//server close event handler
+	
+server.on('close',function(){
+	console.log('server is closed');
+});
+
+```
+## 파일 입출력 in webpage
+이젠 fs모듈로 파일을 읽어 웹페이지에 파일을 띄우는걸 해봅시다.
+
+구글을 들어가서 적당한 이미지를 workspace내 우리 프로젝트 폴더안에 저장합시다.
+
+[ch05_test5.js]
+```shell
+var http = require('http');
+var fs = require('fs');
+
+var server = http.createServer();
+var port = 3000;
+server.listen(port,function(){
+	console.log('웹서버가 시작되었습니다.: %d',port);
+});
+
+//event request handler
+server.on('request',function(req,res){
+	console.log('client requenst is comming');
+	
+	var filename = '근영닌자.jpg'; //경로설정
+	fs.readFile(filename,function(err,data){
+		res.writeHead(200,{"Content-Type":"image/jpg"}); //이미지중 jpg형식이 data라는걸 알려줌.
+		res.write(data); //data를 쓰자.
+		res.end();
+	})
+});
+
+	//server close event handler
+	
+server.on('close',function(){
+	console.log('server is closed');
+});
+```
+
+자세한건 주석 참고하시고 
+
+앞서 코드에서 res.writeHead(200,{"Content-Type":"image/jpg"})라 선언했는데 Content-Type으로 설정한 imag/jpg등의 값을 MIME Type(Mulitpurpose Internet Mail Extensions) 라 한다. 
+
+메세지의 형식이 어떤 형식인지 알려주는 인터넷 표준으로 이를 이용해 파일에 적합한 인코딩을 합니다.
+
+Content-Type으로 선언될수있는 대표적인 MIME Type은 다음과 같아요.
+
+Content Type값 | 설명
+--------------:|:--------------------------------
+text/plain | 일반 텍스트문서
+text/html  | HTML문서
+text/css   | css문서
+text/xml   | xml문서
+image/jpeg(=image/jpg) , image/png, image/bmp | 이미지파일들.
+video/mpeg, audio/mp3 | MPEG 비디오파일, MP3 음악파일
+application/zip | ZIP 압축파일
