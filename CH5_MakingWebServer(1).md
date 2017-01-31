@@ -255,3 +255,89 @@ text/xml   | xml문서
 image/jpeg(=image/jpg) , image/png, image/bmp | 이미지파일들.
 video/mpeg, audio/mp3 | MPEG 비디오파일, MP3 음악파일
 application/zip | ZIP 압축파일
+
+## 파일 스트림으로 읽어 응답보내기
+
+간단하게 웹페이지내에서 파일만 주고받을 경우 이것보다는 두개의 스트림을 연결하는 pipe() 메소드를 이용하면 더 쉽게 구현할 수 있다.
+
+pipe()메소드를 이용해 파일스트림객체와 응답객체를 연결하여보자
+
+[ch05_test6.js]
+```shell
+var http = require('http');
+var fs = require('fs');
+
+var server = http.createServer();
+var port = 3000;
+server.listen(port,function(){
+	console.log('웹서버가 시작되었습니다.: %d',port);
+});
+
+//event request handler
+server.on('request',function(req,res){
+	console.log('client requenst is comming');
+	
+	var filename = '근영닌자.jpg';
+	var infile = fs.createReadStream(filename,{flags:'r'});
+	
+	//pipe 로 연결
+	infile.pipe(res); //infile의 stream을 res의 input으로 전달
+});
+
+```
+이렇게하면 이전과 같은 기능을 간단하게 구현할 수 있지만 헤더를 설정할 수 없는 등의 제약이 생기므로 선택적으로 잘 사용하여야한다.
+
+## 버퍼를 이용해 일부분만 읽어 응답보내기
+
+ch05_test6.js를 다음과 같이 수정해보자
+
+[ch05_test6.js]
+
+```shell
+var http = require('http');
+var fs = require('fs');
+
+var server = http.createServer();
+var port = 3000;
+server.listen(port,function(){
+	console.log('웹서버가 시작되었습니다.: %d',port);
+});
+
+//event request handler
+server.on('request',function(req,res){
+	console.log('클라이언트가 접속하였습니다.');
+	
+	var filename = '근영닌자.jpg';
+	var infile = fs.createReadStream(filename,{flags:'r'});
+	var filelength =0;
+	var curlength = 0;
+	fs.stat(filename,function(err,stats){ //파일의 존재유무를 확인하는 함수. 존재하지 않으면 err가 할당되고 존재하면 null로 초기화.
+		filelength = stats.size; //stats 에는 파일의 메타데이터가 들어감.
+	}); //근데 이건 실제로 안쓰는걸 추천한다고... fs.open()을 쓴뒤 이거 에러 핸들링하는걸 추천한답니다.
+	res.writeHead(200, {"Content-Type": "image/jpeg"}); //header를 선언해주고.
+	infile.on('readable',function(){ //readable이벤트를 호출(infile이 readable이면 실행하나보오)
+		var chunk; //이놈은 버퍼입니다. 
+		while(null!=(chunk=infile.read())){ //chunk에 infile.read()를 넣고 그게 null이 아닌경우 while문 돌림
+			console.log('읽어들인 데이터 크기:%d 바이트',chunk.length);  
+			curlength +=chunk.length; //buffer의 크기를 계속 더해주는거지.
+			res.write(chunk,'utf8',function(err){ //chunk를  write해줌. encoding은 utf8로.
+				console.log('파일 부분쓰기 완료:%d, 파일크기:%d',curlength, filelength);
+				if(curlength>=filelength){
+					res.end();
+				};
+			});
+		};
+	});
+	
+});
+
+	//server close event handler
+	
+server.on('close',function(){
+	console.log('server is closed');
+});
+```
+
+자세한 설명은 주석 열심히 달았으니 주석 열심히 보자.
+
+이런걸 어따 쓰냐면, 데이터를 조금씩 조금씩 보여주고 싶을때 씁니다.
