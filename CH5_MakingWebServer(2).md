@@ -446,3 +446,67 @@ http://localhost:3000/precess/users/2
 
 
 #05-5 쿠키와 세션 관리하기
+
+- 사용자가 로그인한 상태인지 아닌지 확인하고 싶을 때에는 쿠키나 세션을 사용한다. 쿠키는 클라이언트 웹 브라우저에 저장되는 정보이며, 세션은 웹 서버에 저장되는 정보이다. 
+
+###쿠키 처리하기
+
+- 쿠키는 클라이언트 웹 브라우저에 저장되는 정보로서 일정 기간 동안 저장하고 싶을 때 사용한다. 익스프레스에서는 cookie-parser 미들웨어를 사용하면 쿠키를 설정하거나 확인할 수 있다. 다음과 같이 usr()메소드를 사용해 cookie-parser미들웨어를 사용하도록 만들면 요청 객체에 cookies속성이 추가된다.
+
+[app11.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+  , bodyParser=require('body-parser');
+  , cookieParser=require('cookie-parser');
+
+var app = express();
+
+//오류 핸들러 모듈 사용
+var expressErrorHandler = require(;express-error-handler');
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.cookieParser());
+
+//쿠키 정보를 확인함
+app.get('/process/showCookie',function(req,res){
+    console.log('/process/showCookie 호출됨');
+
+    res.send(req.cookies);
+});
+    
+//쿠키에 이름 정보를 설정함
+app.get('/process/setUserCookie',function(req,res){
+    console.log('/process/setUserCookie 호출됨.');
+
+//쿠키 설정
+    res.cookie(''user',{
+        id:'mike',
+        name: '소녀시대',
+        authorized: true
+    });
+
+//redirect로 응답
+    res.redirect('/process/showCookie');
+});
+  
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+cookie-parser미들웨어를 사용하도록 설정한 후 라우팅 미들웨어의 get()메소드를 호출하여 /process/showCookie와 /process/setUserCookie패스를 처리하는 콜백 함수를 등록한다.
+클라이언트의 쿠키 정보는 cookies 객체에 들어 있는데 사용자가 응답 문서를 조회할 때 쿠키 정보를 볼 수 있도록 /process/showCookie패스를 처리하는 함수에서 이 쿠키 객체를 응답으로 보낸다. 그러면 클라이언트에서는 쿠키 객체를 그대로 전달받게 된다.
+/process/setUserCookie패스를 처리하는 함수에서의 응담 객체의; cookie()메소드로 user쿠키를 추가한다. 그러면 쿠키가 클라이언트 웹 브라우저에 설정되는데 마지막 코드 부분에서 redirect()메소드로 /process/showCookie패스를 다시 요청한다. 그러므로 그 정보는 그대로 다시 클라이언트의 웹 브라우저에 표시된다.
+일반적으로는 쿠키를 설정하고 나면 그 정보는 다른 과정에 사용된다.
+
+```shell
+% npm install cookie-parser --save
+```
+[app11.js]를 실행한 후 웹 브라우저를 열고 /process/setUserCookie 패스로 요청하자.
+서버에서 user라는 이름으로 설정한 쿠키 정보를 웹 브라우저 화면에 보여준다. 쿠키가 브라우저에 제대로 설정되었는지를 확인하기 위해 크롬 브라우저의 개발자 도구 화면을 띄우자. (설정 - 도구 더보기 - 개발자 도구) Resources탭을 클릭하면 브라우저에 저장된 리소스를 보여준다. Cookies항목을 클릭하면 현재 PC의 IP정보가 보이는데 그 IP정보를 클릭하면 오른쪽에 설정된 쿠키 정보가 표시된다. 쿠키를 저장하고 나면 이곳에서 'user'라는 이름으로 추가된 쿠키를 볼 수 있다.
+
