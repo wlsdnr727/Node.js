@@ -71,7 +71,7 @@ File - New - Other - Web - HTML File 선택 - Express프로젝트 안에 있는 
 ```shell
 var express = require('express')
   , http = require('http')
-  , path = reqrire('path');
+  , path = require('path');
 
 var bodyParser = require('body-parser');
 
