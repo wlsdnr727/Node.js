@@ -510,3 +510,138 @@ cookie-parser미들웨어를 사용하도록 설정한 후 라우팅 미들웨�
 [app11.js]를 실행한 후 웹 브라우저를 열고 /process/setUserCookie 패스로 요청하자.
 서버에서 user라는 이름으로 설정한 쿠키 정보를 웹 브라우저 화면에 보여준다. 쿠키가 브라우저에 제대로 설정되었는지를 확인하기 위해 크롬 브라우저의 개발자 도구 화면을 띄우자. (설정 - 도구 더보기 - 개발자 도구) Resources탭을 클릭하면 브라우저에 저장된 리소스를 보여준다. Cookies항목을 클릭하면 현재 PC의 IP정보가 보이는데 그 IP정보를 클릭하면 오른쪽에 설정된 쿠키 정보가 표시된다. 쿠키를 저장하고 나면 이곳에서 'user'라는 이름으로 추가된 쿠키를 볼 수 있다.
 
+
+
+
+
+
+###세션 처리하기
+
+- 세션은 쿠키와 달리 서버 쪽에 저장이 된다. 대표적인 예로는 로그인을 했을 때 저장되는 세션이 있다.
+사용자가 로그인하면 세션이 만들어지고 로그아웃하면 세션이 삭제되는 기능을 만들면 사용자가 로그인하기 전에는 접근이 제한된 페이지를 보지 못하도록 설정할 수 있다. 즉, 사용자가 상품 페이지처럼 접근이 제한된 페이지를 조회했을 때 로그인된 상태가 아니라면 로그인 페이지를 자도으로 열어 준다. 그러면 로그인을 해야 상품 페이지로 이동할 수 있으며 상품 페이지에서 로그아웃을 할 수 있다.
+
+세션을 저장하는 방법을 알아보자. 익스프레스에서는 세션을 지원하기 위해 express-session 모듈을 사용한다.
+```shell
+% npm install express-session --save
+```
+코드에서는 require()메소드로 모듈을 불러들인다. 세션을 사용할 때는 쿠키도 같이 사용하므로 cookie-parser모듈도 함께 불러들인다.
+
+[app12.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+  , bodyParser=require('body-parser');
+  , cookieParser=require('cookie-parser');
+  , expressSession = require('express-session');
+
+var app = express();
+
+//오류 핸들러 모듈 사용
+var expressErrorHandler = require(;express-error-handler');
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.cookieParser());
+app.use(expressSession({
+	secret:'my key',
+	resave:true,
+	saveUninitialized:true
+}));
+
+app.get('/process/product',function(req,res){
+    console.log('/process/product 호출됨');
+
+    if(req,session.user){
+		res.redirect('/public/prodeuct.html');
+	}else{
+		res.redirect('/public/login2.html');
+	}
+});
+
+app.post('/process/login',function(req,res){
+	console.log('/process/login호출됨.');
+
+	var paramId = req.param('id');
+	var paramPassword = req.param('password');
+
+	if(req.session.user){
+		//이미 로그인된 상태
+		console.log('/public/product.html');
+	}else{
+		/세션 저장
+		req.session.user = {
+			id:paramId,
+			name:'소녀시대',
+			authorized:true
+		};
+		
+		res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+		res.write('<h1>로그인 성공</h1>');
+		res.write('<div><p>Param id : '+paramId+'</p></div>');
+		res.write('<div><p>Param password : ' + paramPassword + '</p></div>');
+		res.write("<br><br><a href='/process/product'>상품 페이지로 이동하기</a>");
+		res.end();
+	}
+});
+
+//user세션이 이미 있는 경우에는 /public/product.html페이지를 보여주고 그렇지 않으면 로그인을 시도한 후 user세션을 저장한다. user객체를 세션으로 저장하고 싶다면 요청 객체 안에 있는 session객체의 속성으로 user객체를 넣어주면 된다. user객체에는 id,name,authorized속성을 넣어 보았다. user세션을 저장한 후에는 클라이언트로 응답을 보낸다. 로그인이 성공했음을 알리기 위해 클라이언트로 보낸 응답 코드를 보면 가장 아래쪽에 상품 페이지로 이동할 수 있는 링크가 있다. 마지막으로 로그아웃을 처리할 수 있는 함수를 추가해보자.
+
+app.get('/process/logout',function(req,res){
+	console.log('/process/logout 호출됨.');
+
+	if(req.session.user){
+		//로그인된 상태
+		console.log('로그아웃합니다.');
+
+		req.session.destroy(function(err){
+			if(err){throw err;}
+
+				console.log('세션을 삭제하고 로그아웃되었습니다.');
+				res.redirect('/public/login2.html');
+		});
+	}else{
+		//로그인 안 된 상태
+		console.log('아직 로그인되어 있지 않습니다.');
+			res.redirect('/public/login2.html');
+	}
+});
+
+//로그아웃 할 때는 session객체에 정의된 destroy()메소드를 호출하여 세션을 제거한다. 세션을 없앤 후에는 redirect()메소드로 /public/login2.html페이지를 전송한다.
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+
+[/public/product.html]
+```shell
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>상품 페이지</title>
+    </head>
+<body>
+    <h3>상품정보 페이지</h3>
+    <hr/>
+    <p>로그인 후 볼 수 있는 상품정보 페이지입니다.</p>
+    <br><br>
+    <a href='/process/logout'>로그아웃하기</a>
+</body>
+</html>
+```
+
+서버를 실행한 후 웹 브라우저를 열고 /process/product주소로 요청하면 처음에는 user세션 객체가 만들어져 있지 않으므로 로그인 페이지가 나타난다.
+아이디와 비밀번호를 입력한 후 [전송]버튼을 누르면 서버에서 로그인 상태를 유지하기 위해 user세션을 저장한 후 로그인이 성공했다는 웹 문서를 보여준다.
+화면 아래에 있는 '상품 페이지로 이동하기'링크를 누르면 상품 페이지가 표시된다.
+상품 페이지 아래쪽에 있는 '로그아웃하기'링크를 클릭하면 user세션 객체를 삭제한 후 다시 로그인 화면으로 이동한다.
+
+로그인 화면에서 로그인하여 세션이 만들어지면 connect.sid쿠키가 브라우저에 저장된다. connect.sid쿠키는 웹 브라우저에서 세션 정보를 저장할 때 만들어진 것이다. 브라우저마다 이름이 다를 수는 있지만 쿠키를 사용해 세션 정보를 저장하는 방식은 같다.
+
+
+
+# 5-6 파일 업로드 기능 만들기
