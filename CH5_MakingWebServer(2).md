@@ -69,29 +69,42 @@ File - New - Other - Web - HTML File 선택 - Express프로젝트 안에 있는 
 
 [app7.js]
 ```shell
+
 var express = require('express')
+//  , routes = require('./routes')
+//  , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
 
-var bodyParser = require('body-parser');
+var bodyParser=require('body-parser');
 
-var app=express();
+var app = express();
+
+
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
 
 app.use(function(req,res,next){
-	console.log('첫 번째 미들웨어에서 요청을 처리함.');
+    console.log('첫 번째 미들웨어에서 요청을 처리함');
+    
+    var paramId =req.param('id');
+    var paramPassword=req.param('password');
 
-	var paramId = req.param('id');
-	var paramPassword = req.param('passowrd');
-
-	res.writeHead('200',('Content-Type':'text/html;charset=utf8');
-	res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
-	res.write('<div><p>Param id : ' + paramId + '</p></div>');
-	res.end();
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.write('<div><p>Param password : '+paramPassword+'</p></div>');
+    res.end();
 });
 
-http.createServer(app).listen(3000,function(){
-	console.log('Express서버가 3000번 포트에서 시작됨.');
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
 });
+
 ```
 
 body-parser 미들웨어는 외장 모듈로 만들어져 있으므로 먼저 설치해야 한다. 설치하자.
