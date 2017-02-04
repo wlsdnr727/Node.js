@@ -255,3 +255,194 @@ action속성 값으로 /process/login/mike를 넣었으므로 mike라는 문자�
 
 ###오류 페이지 보여주기
 
+로그인을 위해 웹 브라우저에 주소를 입력할 때 주소가 입력되는 부분을 보면 /process/login 패스로 처리된 것을 알 수 있다. 이 패스는 웹 서버에서 라우터 미들웨어로 등록했기 때문에 등록된 콜백 함수에서 요청을 전달받아 처리할 수 있다. 따라서 웹 서버에 등록되지 않은 패스인 /login과 같은 패스를 웹 브라우저에 입력해 보면 문서를 찾을 수 없다는 디폴트 메세지가 나타난다. 이를 우리가 직접 만든 페이지로 바꾸려면 지정한 패스 이외의 모든 패스로 요처잉 들어왔을 때 오류 페이지가 보이도록 처리를 해 주어야 한다.
+
+라우터 미들웨어는 특정 패스가 등록되어 있는지 순서대로 확인하여 처리한다. 따라서 위에서 추가한 post()메소드 아래쪽에 다음과 같이 all()메소드 호출 부분을 추가한다.
+
+[app8.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser=require('body-parser');
+
+var app = express();
+
+
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.post('/process/login/:name',function(req,res){
+    console.log('/process/login 처리함');
+
+    var paraName = req.params.name;
+
+    var paramId =req.param('id');
+    var paramPassword=req.param('password');
+
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    rew.write('<div><p>Param name : ' + paramName + '</p></div>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.write('<div><p>Param password : '+paramPassword+'</p></div>');
+    res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
+    res.end();
+});
+
+app.all('*',function(req,res){
+	res.send(404,'<h1>ERROR - 페이지를 찾을 수 없습니다.</h1>')
+});
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+다시 웹 프라우저에서 /login패스를 입력하면 서버에서 전송한 오류 페이지가 화면에 표시된다.
+
+
+
+###express-error-handler 미들웨어로 오류 페이지 보내기
+
+[app9.js]
+
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser=require('body-parser');
+
+var app = express();
+
+//오류 핸들러 모듈 사용
+var expressErrorHandler = require(;express-error-handler');
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.post('/process/login',function(req,res){
+    console.log('/process/login 처리함');
+
+    var paramId =req.param('id');
+    var paramPassword=req.param('password');
+
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.write('<div><p>Param password : '+paramPassword+'</p></div>');
+    res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
+    res.end();
+});
+
+//모든 router 처리 끝난 후 404오류 페이지 처리
+var errorHandler = expressErrorHandler({
+	static:{
+		'404':'.public/404.html'
+	}
+});
+
+app.use(expressErrorHandler.httpError(404));
+app.use(errorHandler);
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+express-error-handler 모듈은 특정 오류 코드에 따라 클라이언트로 응답을 보내 줄 때 미리 만들어 놓은 웹 문서를 보내 줄 수 있다. 이 모듈은 외장 모듈이므로 코드의 위쪽에서 먼저 require()메소드를 호출하여 모듈을 불러들인다. 오류 페이지는 모든 라우터 처리가 끝난 후 처리되어야 한다. 따라서 서버를 시작하기 위해 호출하는 코드 위쪽에 미들웨어로 추가한다. 오류페이지를 지정할 때는 미리 만들어 둔 파일의 위치를 지정할 수 있으므로 ./public/404.html로 지정한다.
+
+이제 프로젝트 폴더 안에 있는 [public] 폴더 안에 404.html 파일을 만들고 그 안에 오류 표시를 위한 코드를 입력한다.
+
+[/public/404.html]
+```shell
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>오류 페이지</title>
+    </head>
+<body>
+    <h3>ERROR - 페이지를 찾을 수 없습니다.</h3>
+    <hr/>
+    <p>/public/404.html 파일의 오류 페이지를 표시한 것입니다.</p>
+</body>
+</html>
+```
+express-error-handler 모듈을 설치하자.
+```shell
+%npm install express-error-handler --save
+```
+서버를 실행한 후 웹 브라우저에서 아무 주소나 입력하면 페이지를 찾을 수 없다는 메시지가 나타난다.
+
+문서를 찾을 수 없다는 오류 페이지를 표시하기까지의 과정은 다음과 같다.
+웹 브라우저에서 요청한 패스가 라우터에 등록한 함수 중에 없다면 404오류가 발생한다. 이 오류가 발생하면 미리 만들어 둔 404.html파일을 읽어 응답으로 보낸다.
+
+
+
+###토큰과 함께 요청한 정보 처리하기
+
+
+[app10.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser=require('body-parser');
+
+var app = express();
+
+//오류 핸들러 모듈 사용
+var expressErrorHandler = require(;express-error-handler');
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.get('/process/users/:id',function(req,res){
+//토큰 정보를 가져옴
+    var paramId = req.params.id;
+
+    console.log('/process/users와 토큰%s를 사용해 처리함',paramId);
+
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.end();
+});
+
+//모든 router 처리 끝난 후 404오류 페이지 처리
+var errorHandler = expressErrorHandler({
+	static:{
+		'404':'.public/404.html'
+	}
+});
+
+app.use(expressErrorHandler.httpError(404));
+app.use(errorHandler);
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+get()메소드를 호출하면서 동시에 /process/users/:id 패스를 처리하도록 코드를 입력했다. 여기에서 : 을 붙인 id값이 토큰이며, 일반적인 요청 파라미터처럼 파라미터 객체의 속성으로 확인할 수 있다. 따라서 req.param.id 코드를 사용하면 id속성에 접근할 수 있다.
+
+이 파일을 실행하고 웹 브라우저에 주소를 입력한 후 조회하자.
+```shell
+http://localhost:3000/precess/users/2
+```
+이렇게 토큰을 사용하면 사용자 리스트 중에서 특정 사용자 정보를 id값으로 조회하기에 편리하다.
+
+
+
+
+#05-5 쿠키와 세션 관리하기
