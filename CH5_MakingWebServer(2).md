@@ -53,7 +53,7 @@ File - New - Other - Web - HTML File 선택 - Express프로젝트 안에 있는 
 	<form method="post">
 		<table>
 			<tr>
-				<td><lavel>아이디</lavel></td>
+				<td><label>아이디</label></td>
 				<td><input type="text" name="id"><td/>
 			</tr>
 			<tr>
