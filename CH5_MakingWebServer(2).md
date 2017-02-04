@@ -32,3 +32,36 @@ app.use('/public,express.static(path.join(__dirname,'public')));
 ```
 이는 use()메소드의 첫번째 파라미터로 요청 패스를 지정했으며 두번째 파라미터 static()함수로 특정 폴더를 지정했다. 이렇게 하면 요청 패스와 특정 폴더가 맵핑되어 접근할 수 있다.
 
+### body-parser 미들웨어
+
+- POST로 요청했을 때 요청 파라미터를 확인할 수 있도록 만들어둔 미들웨어. GET 방식으로 요청할 때는 주소 문자열에 요청 파라미터가 들어간다. 하지만 이와달리 POST방식으로 요청할 때는 본문인 본문 영역에 요청 파라미터가 들어있게 되므로 요청 파라미터를 파싱하는 방법이 GET방식과 다르다.
+
+File - New - Other - Web - HTML File 선택 - Express프로젝트 안에 있는 public 폴더 선택, 파일이름을 login.html로 만들자.
+
+[/public/login.html]
+```shell
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>로그인 테스트</title>
+	</head>
+<body>
+	<h1>로그인</h1>
+	<br>
+	<form method="post">
+		<table>
+			<tr>
+				<td><lavel>아이디</lavel></td>
+				<td><input type="text" name="id"><td/>
+			</tr>
+			<tr>
+				<td><label>비밀번호</label></td>
+				<td><input type="password" name="password"></td>
+			</tr>
+		</table>
+		<input type="submit" value="전송" name="">
+	</form>
+</body>
+</html>
+```
