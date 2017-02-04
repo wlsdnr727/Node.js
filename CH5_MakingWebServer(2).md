@@ -135,3 +135,122 @@ delete(path,callback)|DELETE방식으로 특정 패스 요청이 발생헀을 �
 all(path,callback)|모든 요청 방식을 처리하며, 특정 패스 요청이 발생했을 때 사용할 콜백 함수를 지정.
 
 
+클라이언트에서 특정 패스로 요청할 경우 GET방식으로 요청할 때는 익스프레스에서 get()메소드를 사용해 함수를 등록해야하며, POST방식으로 요청할 떄는 post()메소드를 사용해 등록해야 한다.
+
+login.html을 복사하여 login2.html을 만든 후 <form>태그에 action속성을 추가해보자.
+
+[login2.html]
+```shell
+...
+	<form method="post" action"/process/login">
+```
+
+app7.js를 복사해 app8.js를 만든 후 use()메소드는 추가하지 않고, post()메소드를 호출하면 등록한 함수가 /process/login 요청 패스를 처리하도록 만들자.
+
+[app8.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser=require('body-parser');
+
+var app = express();
+
+
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.post('/process/login',function(req,res){
+    console.log('/process/login 처리함');
+
+    var paramId =req.param('id');
+    var paramPassword=req.param('password');
+
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.write('<div><p>Param password : '+paramPassword+'</p></div>');
+    res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
+    res.end();
+});
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+
+로그인 페이지에서 [전송]버튼을 누르면 /process/login 패스로 요청하므로 post()메소드로 등록한 콜백 함수가 호출된다. 
+
+클라이언트가 요청한 패스인 /process/login을 라우팅하는 과정은 다음과 같다. 
+라우터 미들웨어를 등록하면 app객체에서get()또는 post() 메소드를 호출할 수 있으므로 먼저 app.post()메소드를 호출하여 요청 패스를 라우팅하도록 등록한다. 그다음 클라이언트에서 /process/login으로 요청이 들어오면 이 라우팅 정보에 따라 해당 콜백 함수가 실행된다.
+콜백 함수에서는 로그인에 필요한 기능을 실행한 후 클라이언트로 응답을 보내 줄 수 있다.
+
+
+### URL파라미터 사용하기
+
+URL뒤에 ?기호를 붙이면 필요에 따라 요청 파라미터를 추가하여 보낼 수 있다. 이런 요청 파라미터는 서버에 데이터를 전달하기 위해 사용되는데, 요청 파라미터 대신URL파라미터를 사용할 수도 있다. URL파라미터는 요청 파라미터와 달리 URL주소의 일부로 들어간다. 
+
+[app8_02.js]
+```shell
+var express = require('express')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser=require('body-parser');
+
+var app = express();
+
+
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.post('/process/login/:name',function(req,res){
+    console.log('/process/login 처리함');
+
+    var paraName = req.params.name;
+
+    var paramId =req.param('id');
+    var paramPassword=req.param('password');
+
+    res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
+    res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
+    rew.write('<div><p>Param name : ' + paramName + '</p></div>');
+    res.write('<div><p>Param id : '+paramId+'</p></div>');
+    res.write('<div><p>Param password : '+paramPassword+'</p></div>');
+    res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
+    res.end();
+});
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+```
+첫번째 파라미터의 값이 /process/login 에서 /process/login/:name으로 변경되었다. 이는 /process/login/ 뒤에 오는 값을 파라미터로 처리하겠다는 의미입니다. 이렇게 지정한 파라미터는 req.params객체 안에 들어간다. 따라서 :name으로 표시된 부분에 넣어 전달된 값은 req.params.name 속성으로 접근할 수 있다.
+
+이렇게 /process/login/:name 형태를 가진 URL을 처리하도록 변경했으므로 사용자가 웹 페이지에서 요청할 떄 사용하는 URL도 변경해야 한다.
+
+[login3.html]
+```shell
+...
+<form method="post" action="/process/login/mike">
+...
+```
+action속성 값으로 /process/login/mike를 넣었으므로 mike라는 문자열이 URL파라미터로 전달 된다.
+```shell
+/process/ogin/mike
+/process/login/:name
+```
+위의 mike와 :name이 서로 매칭되어 처리된다. 정상적으로 처리되는지 확인하기 위해 app8_02.js 파일을 실행 한 후 웹 브라우저에서 login3.html을 열어보자.
+
+
+
+###오류 페이지 보여주기
