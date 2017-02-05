@@ -71,29 +71,31 @@ File - New - Other - Web - HTML File 선택 - Express프로젝트 안에 있는 
 ```shell
 
 var express = require('express')
-//  , routes = require('./routes')
-//  , user = require('./routes/user')
+  , routes = require('./routes')
+  , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
 
-var bodyParser=require('body-parser');
+var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(express.static(path.join(__dirname,'public')));
+//app.use('/public',express.static(path.join(__dirname,'public')));
 
-
+// all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(bodyParser.urlencoded({extended:true}));
-
 app.use(function(req,res,next){
     console.log('첫 번째 미들웨어에서 요청을 처리함');
     
-    var paramId =req.param('id');
-    var paramPassword=req.param('password');
+    var paramId = req.param('id');
+    var paramPassword = req.param('password');
 
+    var userAgent=req.header('User-Agent');
+    var paramName=req.param('name');
     res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
     res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
     res.write('<div><p>Param id : '+paramId+'</p></div>');
@@ -101,9 +103,12 @@ app.use(function(req,res,next){
     res.end();
 });
 
+
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
 
 ```
 
@@ -141,35 +146,60 @@ login.html을 복사하여 login2.html을 만든 후 <form>태그에 action속�
 
 [login2.html]
 ```shell
-...
-	<form method="post" action"/process/login">
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>로그인 테스트</title>
+	</head>
+<body>
+	<h1>로그인</h1>
+	<br>
+	<form method="post" action="/process/login">
+		<table>
+			<tr>
+				<td><label>아이디</label></td>
+				<td><input type="text" name="id"><td/>
+			</tr>
+			<tr>
+				<td><label>비밀번호</label></td>
+				<td><input type="password" name="password"></td>
+			</tr>
+		</table>
+		<input type="submit" value="전송" name="">
+	</form>
+</body>
+</html>
 ```
 
 app7.js를 복사해 app8.js를 만든 후 use()메소드는 추가하지 않고, post()메소드를 호출하면 등록한 함수가 /process/login 요청 패스를 처리하도록 만들자.
 
 [app8.js]
 ```shell
+
 var express = require('express')
+  , routes = require('./routes')
+  , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
 
-var bodyParser=require('body-parser');
+var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(express.static(path.join(__dirname,'public')));
+//app.use('/public',express.static(path.join(__dirname,'public')));
 
-
+// all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(bodyParser.urlencoded({extended:true}));
-
 app.post('/process/login',function(req,res){
-    console.log('/process/login 처리함');
-
-    var paramId =req.param('id');
-    var paramPassword=req.param('password');
+    console.log('첫 번째 미들웨어에서 요청을 처리함');
+    
+    var paramId = req.param('id');
+    var paramPassword = req.param('password');
 
     res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
     res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
@@ -177,11 +207,19 @@ app.post('/process/login',function(req,res){
     res.write('<div><p>Param password : '+paramPassword+'</p></div>');
     res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
     res.end();
+
 });
+
+app.all('*',function(req,res){
+	res.send(404,'<h1>ERROR - 페이지를 찾을 수 없습니다.</h1>');
+});
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
 ```
 
 로그인 페이지에서 [전송]버튼을 누르면 /process/login 패스로 요청하므로 post()메소드로 등록한 콜백 함수가 호출된다. 
@@ -197,42 +235,50 @@ URL뒤에 ?기호를 붙이면 필요에 따라 요청 파라미터를 추가하
 
 [app8_02.js]
 ```shell
+
 var express = require('express')
+  , routes = require('./routes')
+  , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
 
-var bodyParser=require('body-parser');
+var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(express.static(path.join(__dirname,'public')));
+//app.use('/public',express.static(path.join(__dirname,'public')));
 
-
+// all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(bodyParser.urlencoded({extended:true}));
-
 app.post('/process/login/:name',function(req,res){
-    console.log('/process/login 처리함');
-
-    var paraName = req.params.name;
-
-    var paramId =req.param('id');
-    var paramPassword=req.param('password');
+    console.log('첫 번째 미들웨어에서 요청을 처리함');
+    
+    var paramName = req.params.name;
+    
+    var paramId = req.param('id');
+    var paramPassword = req.param('password');
 
     res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
     res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
-    rew.write('<div><p>Param name : ' + paramName + '</p></div>');
+    res.write('<div><p>Param name : ' + paramName + '</p></div>');
     res.write('<div><p>Param id : '+paramId+'</p></div>');
     res.write('<div><p>Param password : '+paramPassword+'</p></div>');
     res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
     res.end();
+
+
 });
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
 ```
 첫번째 파라미터의 값이 /process/login 에서 /process/login/:name으로 변경되었다. 이는 /process/login/ 뒤에 오는 값을 파라미터로 처리하겠다는 의미입니다. 이렇게 지정한 파라미터는 req.params객체 안에 들어간다. 따라서 :name으로 표시된 부분에 넣어 전달된 값은 req.params.name 속성으로 접근할 수 있다.
 
@@ -240,9 +286,30 @@ http.createServer(app).listen(app.get('port'), function(){
 
 [login3.html]
 ```shell
-...
-<form method="post" action="/process/login/mike">
-...
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>로그인 테스트</title>
+	</head>
+<body>
+	<h1>로그인</h1>
+	<br>
+	<form method="post" action="/process/login/mike">
+		<table>
+			<tr>
+				<td><label>아이디</label></td>
+				<td><input type="text" name="id"><td/>
+			</tr>
+			<tr>
+				<td><label>비밀번호</label></td>
+				<td><input type="password" name="password"></td>
+			</tr>
+		</table>
+		<input type="submit" value="전송" name="">
+	</form>
+</body>
+</html>
 ```
 action속성 값으로 /process/login/mike를 넣었으므로 mike라는 문자열이 URL파라미터로 전달 된다.
 ```shell
