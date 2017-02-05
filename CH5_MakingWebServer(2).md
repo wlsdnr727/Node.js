@@ -88,6 +88,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(function(req,res,next){
     console.log('첫 번째 미들웨어에서 요청을 처리함');
     
@@ -187,6 +188,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'public')));
 //app.use('/public',express.static(path.join(__dirname,'public')));
 
@@ -246,6 +248,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'public')));
 //app.use('/public',express.static(path.join(__dirname,'public')));
 
@@ -267,7 +270,7 @@ app.post('/process/login/:name',function(req,res){
     res.write('<div><p>Param name : ' + paramName + '</p></div>');
     res.write('<div><p>Param id : '+paramId+'</p></div>');
     res.write('<div><p>Param password : '+paramPassword+'</p></div>');
-    res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
+    res.write("<br><br><a href='/public/login3.html'>로그인 페이지로 돌아가기</a>");
     res.end();
 
 
@@ -313,7 +316,7 @@ http.createServer(app).listen(app.get('port'), function(){
 ```
 action속성 값으로 /process/login/mike를 넣었으므로 mike라는 문자열이 URL파라미터로 전달 된다.
 ```shell
-/process/ogin/mike
+/process/login/mike
 /process/login/:name
 ```
 위의 mike와 :name이 서로 매칭되어 처리된다. 정상적으로 처리되는지 확인하기 위해 app8_02.js 파일을 실행 한 후 웹 브라우저에서 login3.html을 열어보자.
@@ -339,6 +342,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'public')));
 
 var express = require('express')
@@ -419,6 +423,7 @@ var express = require('express')
 var bodyParser = require('body-parser');
 
 var app = express();
+
 
 app.use(express.static(path.join(__dirname,'public')));
 //app.use('/public',express.static(path.join(__dirname,'public')));
