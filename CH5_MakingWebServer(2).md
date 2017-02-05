@@ -328,46 +328,77 @@ action속성 값으로 /process/login/mike를 넣었으므로 mike라는 문자�
 
 [app8.js]
 ```shell
+
 var express = require('express')
+  , routes = require('./routes')
+  , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
 
-var bodyParser=require('body-parser');
+var bodyParser = require('body-parser');
 
 var app = express();
 
+app.use(express.static(path.join(__dirname,'public')));
+
+var express = require('express')
+  , routes = require('./routes')
+  , user = require('./routes/user')
+  , http = require('http')
+  , path = require('path');
+
+var bodyParser = require('body-parser');
+
+var app = express();
+
+app.use(express.static(path.join(__dirname,'public')));
+//app.use('/public',express.static(path.join(__dirname,'public')));
+
+//오류 핸들러 모듈 사용
+var expressErrorHandler = require('express-error-handler');
 
 
+// all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.post('/process/login/:name',function(req,res){
-    console.log('/process/login 처리함');
-
-    var paraName = req.params.name;
-
-    var paramId =req.param('id');
-    var paramPassword=req.param('password');
+app.post('/process/login',function(req,res){
+    console.log('첫 번째 미들웨어에서 요청을 처리함');
+    
+    var paramId = req.param('id');
+    var paramPassword = req.param('password');
 
     res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
     res.write('<h1>Express 서버에서 응답한 결과입니다.</h1>');
-    rew.write('<div><p>Param name : ' + paramName + '</p></div>');
     res.write('<div><p>Param id : '+paramId+'</p></div>');
     res.write('<div><p>Param password : '+paramPassword+'</p></div>');
     res.write("<br><br><a href='/public/login2.html'>로그인 페이지로 돌아가기</a>");
     res.end();
+
 });
 
-app.all('*',function(req,res){
-	res.send(404,'<h1>ERROR - 페이지를 찾을 수 없습니다.</h1>')
+//app.all('*',function(req,res){
+//	res.send(404,'<h1>ERROR - 페이지를 찾을 수 없습니다.</h1>');
+//});
+
+//모든 router 처리 끝난 후 404오류 페이지 처리
+var errorHandler = expressErrorHandler({
+    static:{
+        '404':'./public/404.html'
+    }
 });
+
+app.use(expressErrorHandler.httpError(404));
+app.use(errorHandler);
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
 ```
 다시 웹 프라우저에서 /login패스를 입력하면 서버에서 전송한 오류 페이지가 화면에 표시된다.
 
