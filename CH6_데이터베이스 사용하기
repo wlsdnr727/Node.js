@@ -1,0 +1,170 @@
+6-1 몽고디비 시작하기
+========
+
+ 몽고디비는 기존에 자주 사용하던 관계형 데이터베이스(Relational Database)와 달라 SQL을 사용하지 않습니다. 또 자바스크립트 객체를 그대로 저장할 수 있어서 데이터 조회 방식도 SQL과 다르다. 하지만 데이터를 저장하거나 조회하는 방법을 따로 제공하기 때문에 몇 가지 사용법만 알아 두면 쉽게 사용할 수 있다.
+
+ 관계형 데이터베이스 : 데이터 항목들을 모아 놓은 집합체인 정형화된 테이블을 여러 개 포함하고 있으면서 다양한 방법으로 데이터에 접근하거나 조회할 수 있도록 만든 데이터 저장소를 말한다. 데이터를 조작하거나 접근할 수 있도록 표준 검색 언어 SQL을 제공하며, SQL 문장은 관계형 데이터베이스의 데이터를 직접 조회하거나 보고서를 추출하는 데 주로 사용된다.
+
+- 몽고디비란?
+
+ 몽고디비를 사용하는 이유 : SQL은 신뢰도는 높지만 성능이 딸림. NoSQL은 성능을 최우선으로 생각해서 실시간 데이터 처리, 대용량 트래픽 처리 등에 많이 쓰임.
+ 몽고디비는 여러 데이터가 모인 하나의 단위를 컬렉션이라고 부름. 관계형 데이터베이스의 테이블과 비슷하지만, 데이터를 정해 놓은 형태로 컬렉션에 넣어야 하는 제약은 없다.
+
+몽고디비에서 데이터베이스는 컬렉션의 집합이며, 각각의 컬렉션은 문서 객체의 집합이다. 문서 객체는 속성들의 집합으로, 자바스크립트 객체와 같이 속성들을 추가해서 저장할 수 있다.
+
+- 몽고디비 사용을 위한 프로그램 설치하기
+
+책을 보자
+
+- 몽고디비에 데이터를 추가하거나 조회하기
+
+%mongo 입력하면 몽고디비 데이터베이스에 연결할 수 있는 셸 상태로 들어간다.
+Shell(셸) : 명령을 받아서 실행하는 프로그램
+
+%use shopping
+use <db> : Switch current database to <db>. The mongo shell variable db is set to the current database. 
+https://docs.mongodb.com/manual/reference/mongo-shell/ 
+
+%db.users.insert({"name":"소녀시대",“age":20})
+db.collection.insert
+https://docs.mongodb.com/manual/reference/method/db.collection.insert/ 
+%db.users.find.pretty()
+db.collection.find(query,projection) : Selects documents in a collection and returns a cursor to the selected documents.
+https://docs.mongodb.com/manual/reference/method/db.collection.find/ 
+cursor.pretty() : Configures the cursor to display results in an easy-to-read format.
+https://docs.mongodb.com/manual/reference/method/cursor.pretty/ 
+밑에 예를 보면 pretty 쓰고 안쓰고 차이 나타남
+
+주의! : 몽고디비에 데이터 추가 insert, 데이터 조회는 find 잊지 마세요
+
+데이터베이스 명령어 https://docs.mongodb.com/v3.2/reference/command/ 
+데이터베이스 메소드 https://docs.mongodb.com/manual/reference/method/js-database/ 
+기타 등등 모르는거 찾아보세요
+
+6-2 익스프레스에서 몽고디비 사용하기
+========
+
+- 새로운 프로젝트 만들기
+app.js 열기 package.json 열기
+
+%npm install
+npm install 모듈명 --save로 모듈 설치시 --save 옵션 붙이면 로컬에 모듈을 설치하면서 자동적으로 package.json을 업뎃함. 
+
+dependencies : 의존성을 규정하는 것은 패키지의 이름과 해당 패키지의 버전 범위를 지정한 객체를 통해 이루어진다. 버전 범위는 하나 혹은 여러 개의 공백으로 분리된 설명자 문자열이다. 의존성은 tarball 이나 git URL로도 지정될 수 있다.
+테스트 관련 모듈이나 트랜스 파일러 관련 모듈을 dependencies 개체에 추가하면 안됨. 운영이 아닌 개발 단계에서만 필요한 의존성 모듈들은 devDependencies에 설치함. 
+https://docs.npmjs.com/files/package.json 
+
+
+-mongodb 모듈을 사용하여 로그인 기능 만들기
+login.html 만들기
+
+%cls
+%db.users.remove.({"name":/소녀/})
+%db.users.find().pretty()
+%db.users.insert({"id" : "test01" , "name" : “소녀시대”,“password":"123456"})
+%db.users.find().pretty()
+
+cls 명령은 cmd 화면에 출력된 정보를 화면에서 지움
+remove() 메소드로 기존 데이터를 삭제함. 이 때 파라미터로 전달되는 JSON 객체에는 regexp 표현식으로 표시 조건을 넣을 수 있다.
+find()로는 모든 데이터가 삭제되어 검색 불가
+insert()로 데이터 새로 추가
+문서 객체에 id와 password 속성을 추가함. app.js 파일에 로그인을 처리하는 코드를 추가할 수 있다. 앞에서는 mongo 셸을 사용하여 직접 명령을 입력했지만, 소스 코드에서는 셸을 사용하지 않고 직접 몽고디비 데이터베이스에 연결하므로 mongodb 모듈 사용.
+%npm install mongodb --save
+
+app.js 43줄
+connectDB 함수는 mongodb 모듈을 사용해 몽고디비 데이터베이스에 연결하도록 새로 만든 것. 데이터베이스에 연결하려면 먼저 연결 정보를 문자열로 정의해야 한다. 문자열의 형식은 다음과 같다
+mongodb://%IP정보%:%포트정보%/%데이터베이스이름%
+%의미는 우리가 지정해야 하는 정보라는 의미.
+
+데이터베이스에 연결하려면 mongodb 객체의 connect() 메소드를 호출해야 함.
+
+결과 : 데이터베이스에 연결되었고 database 변수에 저장된 db 객체를 사용해 데이터베이스를 사용할 수 있는 상태가 됨.
+
+- 사용자가 보내온 아이디와 비밀번호 비교하기 (105줄)
+사용자가 보내온 아이디와 비번을 사용해 데이터베이스 안에 일치하는 문서 객체가 있는지알아보자.
+
+- 로그인 처리를 요청하는 패스에 라우팅 함수 추가하기 (65줄)
+ 로그인 처리를 요청하는 /process/login 패스에 라우팅 함수를 추가. 사용자가 있는지 확인한 수 그에 맞는 응답을 보내주는 코드
+ 사용자가 요청한 id와 비번 파라미터를 확인한 후 authUser() 메소드를 호출하여 전달. 사용자가 조회되면 docs 문서 객체가 콜백 함수의 파라미터로 전달되므로 docs 문서 객체의 첫 번째 배열 요소를 참조한 후 사용자 이름을 확인함. 
+
+파일 실행 후 localhost:3000/public/login.html
+안되네ㅠㅠ
+
+로그인 화면이 보이면 id에 test01, 비번에 123456 입력 후 전송 누른다.
+
+- 사용자 추가 기능 만들기
+웹 서버가 사용자 등록 요청을 받으면 서버에 사용자를 추가하는 기능
+app2.js 열어서 163줄 보자.
+addUser 함수에는 사용자에게 요청받은 id password name 전달. insert로 데이터 추가.
+
+/process/adduser 패스를 라우팅하는 함수를 추가 106줄.
+addUser() 함수를 호출하면서 동시에 사용자로부터 전달받은 id, password, name 파라미터를 전달함. 콜백 함수에 결과 객체가 전달되면 정상적으로 사용자가 데이터베이스에 추가된 것이므로 클라이언트에 성공했다는 응답을 보냄.
+
+adduser.html
+사용자 등록을 위한 웹 문서
+
+app2 실행 후 localhost:3000/public/adduser.html
+id에 test02 비번에 123456 사용자명에 걸스데이 입력
+
+
+- 데이터베이스 관리 도구 사용하기
+몽고디비 데이터베이스도 다른 데이터베이스들처럼 편하게 화면을 보면서 데이터를 조회하거나 추가할 수 있다. 
+
+6-3 몽구스로 데이터베이스 다루기
+========
+
+ 하나의 컬렉션 안에 똑같은 속성을 가진 문서 객체를 반복적으로 넣어 둔다면 데이터를 조회할 때도 어떤 속성들이 들어 있는지 미리 알고 있는 상태에서 조회할 수 있다. 따라서 관계형 데이터베이스의 테이블이나 엑셀의 시트처럼 쉽게 다룰 수 있다. 몽구스 모듈을 알아보자.
+
+- 몽구스 모듈 사용하기
+
+ 몽고디비를 사용하면 문서 객체 안에 들어가는 속성을 마음대로 바꿀 수 있지만, 컬렉션 안에 들어있는 여러 개의 문서 객체를 조회할 때는 제약이 생길 수도 있다. 그래서 스키마(Schema)를 만들고, 그 스키마에 따라 문서 객체를 저장하는 것이 편리할 때도 있다. 특히 일정한 틀에 맞는 자바스크립트 객체를 그대로 데이터베이스에 저장하거나 일정한 틀에 맞게 구축된 데이터베이스의 문서 객체를 자바스크립트 객체로 바꿀 수 있다면 편하게 데이터베이스를 다룰 수 있다. 이렇게 자바스크립트 객체와 데이터베이스 객체를 서로 매칭하여 바꿀 수 있게 하는 것을 오브젝터 맵퍼(Object Mapper)라고 한다. 몽구스가 그 예.
+
+스키마 : 데이터베이스의 구조를 정의한 것. 예를 들어 엑셀 시트에 이름과 나이 데이터를 넣으려고 한다면 첫 번째 칼럼에는 이름을 문자로 넣고, 두 번째 칼럼에는 나이를 숫자로 넣는다는 것을 미리 정해 둘 수 있다. 이런 구조를 데이터베이스 스키마라고 한다.
+
+몽구스 모듈 설치하기 
+%npm install mongoose --save
+app3.js 21줄 mongoose 모듈 불러들이는 코드
+p.228 표 대표적인 메소드 설명
+connect(uri(s),[options],[callback])
+ mongoose를 이용해 데이터베이스에 연결함. 연결 후에는  mongoose.connection 객체를 사용해 연결 관련 이벤트를 처리할 수 있다.
+https://docs.mongodb.com/manual/reference/method/connect/
+Schema() 스키마를 정의함
+model(name,[S초듬],[collection],[skiplnit]) 
+모델을 정의함. [collection]이 지정되면 이 컬렉션을 사용하며, 지정하지 않으면 name으로 유추한 컬렉션을 사용함
+
+48줄부터
+connectDB()함수를 이용해 mongoose 모듈로 데이터베이스에 연결하고, 연결했을 때 전달받는 이벤트를 처리하도록 만든다.
+open 이벤트는 데이터베이스가 연결되었을 때 발생
+error 이벤트는 데이터베이스 연결이 제대로 되지 않을 때 발생
+disconnect 이벤트는 데이터베이스 연결이 끊어졌을 때 호출되어 다시 연결하도록 connectDB 함수를 호출
+
+데이터베이스에 연결되면 스키마 정의함. 컬렉션에서 사용하는 속성을 넣어줌. 각 속성은 데이터 타입과 같은 역할을 하는 스키마 타입을 가진다.
+
+
+var UserSchema = new mongoose.S초듬({
+    id: {type:String, required:true, unique:true},
+    password:{type:String, required:true},
+    name:String
+}); 
+스키마 타입에 자바스크립트 객체를 중괄호 이용해 구체적으로 전달 가능.
+
+스키마는 단순히 구조만 정의하므로 데이터베이스에 들어 있는 컬렉션을 지정하려면(컬렉션의 문서 속성과 맞추기) 모델을 만들어야 함. mongoose 객체의 model() 메소드를 사용하면 된다.
+
+- 몽구스로 사용자 인증하기 (158줄)
+ 사용자 인증 하려면 데이터 조회 방법을 알아야 함. 다음은 사용하는 메소드.
+find([criteria], [callback]) 컬렉션의 데이터를 조회. 조회 결과는 콜백으로 전달.
+save([options], [callback]) 모델 객체가 아니라 모델 인스턴스 객체를 만들어야 사용 가능. 모델 인스턴스 객체의 데이터를 저장. 저장 결과는 콜백으로.
+update([criteria], [doc], [options], [callback]) 컬렉션의 데이터를 업데이트. where() 메소드와 함께 사용됨
+UserModel.where({id: 'test01'}).update({name:‘애프터스쿨’,function(err...){...}0)
+remove([criteria], [callback]) 컬렉션의 데이터를 삭제
+
+사용자 인증시(158줄)
+find() 메소드를 호출하며 id와 password 속성이 있는 객체를 파라미터로 전달. 저장된 아뒤와 비번을 조회함.
+
+사용자 등록시(183줄)
+데이터를 저장하기 위해 new 연산자와 모델 객체인 UserModel로 새로운 모델 인스턴스를 만든다. 모델 인스턴스를 만들면 save() 메소드를 호출하여 저장한다. 사용자가 전달한 값으로 컬렉션에 추가됨.
+
+app3.js 실행. localhost:3000/public/login.html 사이트를 연다. 
+localhost:3000/public/adduser.html 사이트를 열고 사용자 등록 요청하기
+사용자를 등록 후 Robomongo 화면에서 user 컬렉션에 들어 있는 데이터를 조회하자.  
+
